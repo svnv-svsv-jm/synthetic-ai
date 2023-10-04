@@ -1,6 +1,7 @@
-__all__ = ["MusicLM"]
+__all__ = ["MuLaN"]
 
 import typing as ty
+from typing import Any
 from loguru import logger
 
 import torch
@@ -8,12 +9,12 @@ import torch.optim as optim
 import lightning.pytorch as pl
 from lightning.pytorch.utilities.types import STEP_OUTPUT, OptimizerLRSchedulerConfig
 import lightning.pytorch.callbacks as cb
-from musiclm_pytorch import MuLaN, AudioSpectrogramTransformer, TextTransformer
+from musiclm_pytorch import MuLaN as Mulan, AudioSpectrogramTransformer, TextTransformer, MuLaNEmbedQuantizer
 import torchaudio
 
 
-class MusicLM(pl.LightningModule):
-    """MusicLM model."""
+class MuLaN(pl.LightningModule):
+    """MuLaN model."""
 
     def __init__(
         self,
@@ -26,6 +27,7 @@ class MusicLM(pl.LightningModule):
         spec_aug_stretch_factor: float = 0.8,
         lr: float = 1e-8,
         patience: int = 2,
+        enable_checkpointing: bool = False,
         checkpoint_kwargs: ty.Dict[str, ty.Any] = {},
     ) -> None:
         """
@@ -52,8 +54,13 @@ class MusicLM(pl.LightningModule):
         logger.trace(f"Initialized AudioSpectrogramTransformer: {self.audio_transformer}")
         self.text_transformer = TextTransformer(dim=dim, depth=depth, heads=heads, dim_head=dim_head)
         logger.trace(f"Initialized TextTransformer: {self.text_transformer}")
-        self.model = MuLaN(audio_transformer=self.audio_transformer, text_transformer=self.text_transformer)
+        self.model = Mulan(audio_transformer=self.audio_transformer, text_transformer=self.text_transformer)
         logger.trace(f"Initialized MuLaN: {self.model}")
+        self.quantizer = MuLaNEmbedQuantizer(
+            mulan=self.model,  # pass in trained mulan from above
+            conditioning_dims=(dim, dim, dim),  # say all three transformers have model dimensions of 1024
+            namespaces=("semantic", "coarse", "fine"),
+        )
 
     def configure_optimizers(self) -> OptimizerLRSchedulerConfig:
         """Configure this model's optimizer and scheduler."""
@@ -76,15 +83,16 @@ class MusicLM(pl.LightningModule):
     def configure_callbacks(self) -> ty.List[pl.Callback]:  # type: ignore
         """Configure callbacks."""
         callbacks = []
-        ckpt_kw: dict = self.hparams["checkpoint_kwargs"]
-        ckpt_kw.setdefault("monitor", "loss/train")
-        ckpt_kw.setdefault("mode", "min")
-        ckpt_kw.setdefault("save_top_k", 3)
-        ckpt_kw.setdefault("save_last", True)
-        ckpt_kw.setdefault("save_on_train_epoch_end", True)
-        logger.info(f"Creating {cb.ModelCheckpoint} with parameters: {ckpt_kw}")
-        ckpt_cb_val: pl.Callback = cb.ModelCheckpoint(**ckpt_kw)
-        callbacks.append(ckpt_cb_val)
+        if self.hparams["enable_checkpointing"]:
+            ckpt_kw: dict = self.hparams["checkpoint_kwargs"]
+            ckpt_kw.setdefault("monitor", "loss/train")
+            ckpt_kw.setdefault("mode", "min")
+            ckpt_kw.setdefault("save_top_k", 3)
+            ckpt_kw.setdefault("save_last", True)
+            ckpt_kw.setdefault("save_on_train_epoch_end", True)
+            logger.info(f"Creating {cb.ModelCheckpoint} with parameters: {ckpt_kw}")
+            ckpt_cb_val: pl.Callback = cb.ModelCheckpoint(**ckpt_kw)
+            callbacks.append(ckpt_cb_val)
         early = cb.EarlyStopping(
             monitor="loss/val",
             patience=5,
@@ -94,6 +102,22 @@ class MusicLM(pl.LightningModule):
         )
         callbacks.append(early)
         return callbacks
+
+    def forward(
+        self,
+        wavs: torch.Tensor = None,
+        texts: ty.Sequence[str] = None,
+        namespace: str = "semantic",
+    ) -> ty.Tuple[torch.Tensor, ty.Optional[torch.Tensor]]:
+        """Forward pass."""
+        embeds: torch.Tensor
+        conds: ty.Optional[torch.Tensor] = None
+        if wavs is not None:
+            embeds = self.model.get_audio_latents(wavs)
+            conds = self.quantizer(wavs=wavs, namespace=namespace)
+        else:
+            embeds = self.model.get_text_latents(texts)
+        return embeds, conds
 
     def training_step(self, batch: ty.Dict[str, ty.Any], batch_idx: int = None) -> STEP_OUTPUT:
         """Train a single training step."""

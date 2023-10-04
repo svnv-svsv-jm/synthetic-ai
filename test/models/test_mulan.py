@@ -8,7 +8,7 @@ import lightning.pytorch as pl
 from lightning.pytorch.tuner import Tuner
 
 from sai.datasets import MusicCaps
-from sai.models import MusicLM
+from sai.models import MuLaN
 
 
 def test_musiclm() -> None:
@@ -22,7 +22,7 @@ def test_musiclm() -> None:
     dm.setup()
     logger.info(f"Sample: {dm.dataset[0]}")
     # Model
-    model = MusicLM()
+    model = MuLaN()
     # Trainer
     trainer = pl.Trainer(
         logger=False,

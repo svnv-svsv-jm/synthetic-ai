@@ -1,6 +1,6 @@
 # Synthetic A.I.
 
-This repository offers a different examples, showing how to generate synthetic (sequential) data.
+This repository offers a different examples, showing how to generate synthetic data.
 
 ## Installation via virtual environment
 
