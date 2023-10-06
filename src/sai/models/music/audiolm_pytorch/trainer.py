@@ -24,6 +24,11 @@ from torch.utils.data import Dataset, DataLoader, random_split
 from einops import rearrange
 from ema_pytorch import EMA
 
+from packaging import version
+
+from accelerate import Accelerator, DistributedType
+from accelerate.utils import DistributedDataParallelKwargs
+
 from .optimizer import get_optimizer
 from .soundstream import SoundStream
 from .encodec import EncodecWrapper
@@ -41,10 +46,6 @@ from .data import SoundDataset, get_dataloader
 from .utils import AudioConditionerBase
 from .version import __version__
 
-from packaging import version
-
-from accelerate import Accelerator, DistributedType
-from accelerate.utils import DistributedDataParallelKwargs
 
 # constants
 

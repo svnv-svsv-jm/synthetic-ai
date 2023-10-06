@@ -4055,6 +4055,20 @@ docs = ["requests (>=2.0.0)"]
 typing = ["mypy (>=1.0.0)"]
 
 [[package]]
+name = "lion-pytorch"
+version = "0.1.2"
+description = "Lion Optimizer - Pytorch"
+optional = false
+python-versions = "*"
+files = [
+    {file = "lion-pytorch-0.1.2.tar.gz", hash = "sha256:2d4200f0441cc3f5bd5707f4d14efdb9489e75d1213eb46228ada127133e2c4e"},
+    {file = "lion_pytorch-0.1.2-py3-none-any.whl", hash = "sha256:2e43b2e559aa0cb84f459a68cf311d4e11e677472501432efce22d6dc73d3b55"},
+]
+
+[package.dependencies]
+torch = ">=1.6"
+
+[[package]]
 name = "llvmlite"
 version = "0.41.0"
 description = "lightweight wrapper around basic LLVM functionality"
@@ -4448,8 +4462,8 @@ gitpython = ">=2.1.0,<4"
 gunicorn = {version = "<22", markers = "platform_system != \"Windows\""}
 importlib-metadata = ">=3.7.0,<4.7.0 || >4.7.0,<7"
 Jinja2 = [
-    {version = ">=3.0,<4", markers = "platform_system == \"Windows\""},
     {version = ">=2.11,<4", markers = "platform_system != \"Windows\""},
+    {version = ">=3.0,<4", markers = "platform_system == \"Windows\""},
 ]
 markdown = ">=3.3,<4"
 matplotlib = "<4"
@@ -7732,8 +7746,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.22.3", markers = "python_version == \"3.10\" and platform_system == \"Windows\" and platform_python_implementation != \"PyPy\""},
     {version = ">=1.18", markers = "python_version != \"3.10\" or platform_system != \"Windows\" or platform_python_implementation == \"PyPy\""},
+    {version = ">=1.22.3", markers = "python_version == \"3.10\" and platform_system == \"Windows\" and platform_python_implementation != \"PyPy\""},
 ]
 packaging = ">=21.3"
 pandas = ">=1.0"
@@ -9084,4 +9098,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "e767fbe97474ca4ff9657c3ce37d27ac8b817ac615b64bfb63f1aa478708e95c"
+content-hash = "38a877ce05582714c3bd56eadc8df965104d604e743f4d9a645772c226f32017"
