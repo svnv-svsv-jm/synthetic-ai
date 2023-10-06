@@ -2,6 +2,7 @@ __all__ = ["get_metric"]
 
 import typing as ty
 from loguru import logger
+
 from omegaconf import DictConfig
 import torch
 import pytorch_lightning as pl
@@ -16,7 +17,7 @@ def logged_metrics(trainer: pl.Trainer) -> ty.Optional[_OUT_DICT]:
         logged_metrics = trainer.logged_metrics
     except Exception:
         return None
-    return logged_metrics
+    return logged_metrics  # type: ignore
 
 
 def _get_metric(key: str, logged_metrics: dict) -> float:

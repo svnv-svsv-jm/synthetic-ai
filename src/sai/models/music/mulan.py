@@ -9,8 +9,8 @@ import torch.optim as optim
 import lightning.pytorch as pl
 from lightning.pytorch.utilities.types import STEP_OUTPUT, OptimizerLRSchedulerConfig
 import lightning.pytorch.callbacks as cb
-from musiclm_pytorch import MuLaN as Mulan, AudioSpectrogramTransformer, TextTransformer, MuLaNEmbedQuantizer
 
+from .musiclm_pytorch import MuLaN as Mulan, AudioSpectrogramTransformer, TextTransformer, MuLaNEmbedQuantizer
 from .utils import fetch_decode_waveform
 
 
@@ -46,7 +46,7 @@ class MuLaNLightning(pl.LightningModule):
         self.save_hyperparameters()
         self.lr = lr
         # Audio
-        self.audio_transformer = AudioSpectrogramTransformer(
+        self.audio_transformer = AudioSpectrogramTransformer(  # type: ignore
             dim=dim,
             depth=depth,
             heads=heads,
@@ -57,7 +57,12 @@ class MuLaNLightning(pl.LightningModule):
         )
         logger.trace(f"Initialized AudioSpectrogramTransformer: {self.audio_transformer}")
         # Text
-        self.text_transformer = TextTransformer(dim=dim, depth=depth, heads=heads, dim_head=dim_head)
+        self.text_transformer = TextTransformer(  # type: ignore
+            dim=dim,
+            depth=depth,
+            heads=heads,
+            dim_head=dim_head,
+        )
         logger.trace(f"Initialized TextTransformer: {self.text_transformer}")
         # MULAN
         self.model = Mulan(audio_transformer=self.audio_transformer, text_transformer=self.text_transformer)
@@ -133,7 +138,7 @@ class MuLaNLightning(pl.LightningModule):
         text_embedding: ty.Optional[torch.Tensor] = None
         conds: ty.Optional[torch.Tensor] = None
         if wavs is not None:
-            audio_embedding = self.model.get_audio_latents(wavs)
+            audio_embedding = self.model.get_audio_latents(wavs)  # type: ignore
             conds = self.quantizer(wavs=wavs, namespace=namespace)
         if texts is not None:
             text_embedding = self.model.get_text_latents(texts)
