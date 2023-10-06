@@ -5,6 +5,10 @@
 *.egg-info
 catboost_info
 
+# Builds
+dist/
+build/
+
 # Data
 .data
 
