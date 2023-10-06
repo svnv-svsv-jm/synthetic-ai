@@ -1,6 +1,6 @@
 FROM python:3.10.10
 
-ARG project_name=mostly-ai
+ARG project_name=sai
 
 ENV PROJECT_NAME=$project_name
 
