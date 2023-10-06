@@ -56,6 +56,7 @@ fairseq = { file = "wheels/fairseq-0.12.2-cp310-cp310-macosx_14_0_arm64.whl", pl
 musiclm-pytorch = "^0.2.8"
 datasets = { extras = ["audio"], version = "^2.14.5" }
 yt-dlp = "^2023.9.24"
+sounddevice = "^0.4.6"
 
 [tool.poetry.dev-dependencies]
 cython = "^3.0.2"

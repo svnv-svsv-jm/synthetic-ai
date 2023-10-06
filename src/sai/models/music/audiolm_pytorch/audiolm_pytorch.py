@@ -1525,7 +1525,7 @@ class SemanticTransformerWrapper(nn.Module):
     def generate(
         self,
         *,
-        max_length,
+        max_length: int,
         text: Optional[List[str]] = None,
         text_embeds=None,
         prime_wave=None,

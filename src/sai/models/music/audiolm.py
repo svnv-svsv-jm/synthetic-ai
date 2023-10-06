@@ -188,6 +188,7 @@ class AudioLMLightning(pl.LightningModule):
         batch_size: int = 1,
         prime_wave: Tensor = None,
         text: ty.Union[str, ty.Sequence[str]] = None,
+        **kwargs: ty.Any,
     ) -> Tensor:
         """Generate Audio."""
         generated_wav: Tensor
@@ -196,16 +197,16 @@ class AudioLMLightning(pl.LightningModule):
             if prime_wave.dim() == 1:
                 prime_wave = prime_wave.unsqueeze(0)
             assert prime_wave.dim() == 2, f"Wrong dim: {prime_wave.size()}. Shape must be (B,L)."
-            generated_wav = self.model(prime_wave=prime_wave)
+            generated_wav = self.model(prime_wave=prime_wave, **kwargs)
             return generated_wav
         # Text condition, if given
         if text is not None:
             if isinstance(text, str):
                 text = [text]
-            generated_wav = self.model(text=text)
+            generated_wav = self.model(text=text, **kwargs)
             return generated_wav
         # No conditioning
-        generated_wav = self.model(batch_size=batch_size)
+        generated_wav = self.model(batch_size=batch_size, **kwargs)
         return generated_wav
 
     def training_step(
