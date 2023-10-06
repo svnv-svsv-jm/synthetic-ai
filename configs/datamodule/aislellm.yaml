@@ -1,2 +1,0 @@
-_target_: sdata.datasets.AisleLLMDataModule
-batch_size: 32

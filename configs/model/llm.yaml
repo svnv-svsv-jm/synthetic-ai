@@ -1,2 +1,0 @@
-_target_: sdata.models.LLM
-pretrained_model_name_or_path: gpt2

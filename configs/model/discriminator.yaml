@@ -1,4 +1,0 @@
-_target_: sdata.models.Classifier
-in_features: 15
-num_classes: 2
-hidden_dims: [256, 256, 256, 256]

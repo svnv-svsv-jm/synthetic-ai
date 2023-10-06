@@ -1,9 +1,0 @@
-num_classes: 2
-loss: bce
-lr: 1e-05
-in_features: 15
-hidden_dims:
-- 256
-- 256
-- 256
-- 256

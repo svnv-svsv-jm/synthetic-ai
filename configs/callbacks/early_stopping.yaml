@@ -1,8 +1,0 @@
-_target_: pytorch_lightning.callbacks.EarlyStopping
-monitor: 'loss/val'
-min_delta: 0. # minimum change in the monitored quantity
-patience: 3 # checks with no improvement after which training will be stopped
-verbose: False # verbosity mode
-mode: "min"
-strict: False # crash the training if monitor is not found
-check_finite: True # stops training when the monitor becomes NaN or infinite

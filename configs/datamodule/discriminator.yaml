@@ -1,2 +1,0 @@
-_target_: sdata.datasets.DiscriminatorDataModule
-batch_size: 32
