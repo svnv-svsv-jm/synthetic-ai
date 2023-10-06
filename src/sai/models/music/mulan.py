@@ -1,4 +1,4 @@
-__all__ = ["MuLaN"]
+__all__ = ["MuLaNLightning"]
 
 import typing as ty
 from typing import Any
@@ -10,10 +10,11 @@ import lightning.pytorch as pl
 from lightning.pytorch.utilities.types import STEP_OUTPUT, OptimizerLRSchedulerConfig
 import lightning.pytorch.callbacks as cb
 from musiclm_pytorch import MuLaN as Mulan, AudioSpectrogramTransformer, TextTransformer, MuLaNEmbedQuantizer
-import torchaudio
+
+from .utils import fetch_decode_waveform
 
 
-class MuLaN(pl.LightningModule):
+class MuLaNLightning(pl.LightningModule):
     """MuLaN model."""
 
     def __init__(
@@ -29,6 +30,7 @@ class MuLaN(pl.LightningModule):
         patience: int = 2,
         enable_checkpointing: bool = False,
         checkpoint_kwargs: ty.Dict[str, ty.Any] = {},
+        num_frames: int = 1024,
     ) -> None:
         """
         Args:
@@ -42,6 +44,8 @@ class MuLaN(pl.LightningModule):
         """
         super().__init__()
         self.save_hyperparameters()
+        self.lr = lr
+        # Audio
         self.audio_transformer = AudioSpectrogramTransformer(
             dim=dim,
             depth=depth,
@@ -52,10 +56,13 @@ class MuLaN(pl.LightningModule):
             spec_aug_stretch_factor=spec_aug_stretch_factor,
         )
         logger.trace(f"Initialized AudioSpectrogramTransformer: {self.audio_transformer}")
+        # Text
         self.text_transformer = TextTransformer(dim=dim, depth=depth, heads=heads, dim_head=dim_head)
         logger.trace(f"Initialized TextTransformer: {self.text_transformer}")
+        # MULAN
         self.model = Mulan(audio_transformer=self.audio_transformer, text_transformer=self.text_transformer)
         logger.trace(f"Initialized MuLaN: {self.model}")
+        # Quantizer
         self.quantizer = MuLaNEmbedQuantizer(
             mulan=self.model,  # pass in trained mulan from above
             conditioning_dims=(dim, dim, dim),  # say all three transformers have model dimensions of 1024
@@ -108,34 +115,52 @@ class MuLaN(pl.LightningModule):
         wavs: torch.Tensor = None,
         texts: ty.Sequence[str] = None,
         namespace: str = "semantic",
-    ) -> ty.Tuple[torch.Tensor, ty.Optional[torch.Tensor]]:
-        """Forward pass."""
-        embeds: torch.Tensor
+    ) -> ty.Tuple[ty.Optional[torch.Tensor], ty.Optional[torch.Tensor], ty.Optional[torch.Tensor]]:
+        """Embeds input waveform and/or texts.
+        Args:
+            wavs (torch.Tensor, optional):
+                Input waveform to embed. Defaults to None.
+            texts (ty.Sequence[str], optional):
+                Input texts to embed. Defaults to None.
+            namespace (str, optional):
+                Namespace for :class:`musiclm_pytorch.MuLaNEmbedQuantizer`. Defaults to "semantic".
+        Returns:
+            audio_embedding (torch.Tensor):
+            text_embedding (torch.Tensor):
+            conds (torch.Tensor):
+        """
+        audio_embedding: ty.Optional[torch.Tensor] = None
+        text_embedding: ty.Optional[torch.Tensor] = None
         conds: ty.Optional[torch.Tensor] = None
         if wavs is not None:
-            embeds = self.model.get_audio_latents(wavs)
+            audio_embedding = self.model.get_audio_latents(wavs)
             conds = self.quantizer(wavs=wavs, namespace=namespace)
-        else:
-            embeds = self.model.get_text_latents(texts)
-        return embeds, conds
+        if texts is not None:
+            text_embedding = self.model.get_text_latents(texts)
+        return audio_embedding, text_embedding, conds
 
-    def training_step(self, batch: ty.Dict[str, ty.Any], batch_idx: int = None) -> STEP_OUTPUT:
-        """Train a single training step."""
-        logger.trace(f"Received: {batch}")
-        waveform = self._fetch_waveform(batch)
-        loss: torch.Tensor = self.model(waveform, raw_texts=[batch["caption"][0]])
-        self.log("loss/train", loss, prog_bar=True)
+    def training_step(self, batch: ty.Dict[str, ty.Any], batch_idx: int) -> STEP_OUTPUT:
+        """Training step."""
+        return self.step(batch, batch_idx, "train")
+
+    def validation_step(self, batch: ty.Dict[str, ty.Any], batch_idx: int) -> STEP_OUTPUT:
+        """Validation step."""
+        return self.step(batch, batch_idx, "train")
+
+    def test_step(self, batch: ty.Dict[str, ty.Any], batch_idx: int) -> STEP_OUTPUT:
+        """Test step."""
+        return self.step(batch, batch_idx, "train")
+
+    def step(self, batch: ty.Dict[str, ty.Any], batch_idx: int, stage: str) -> STEP_OUTPUT:
+        """Common step."""
+        logger.trace(f"Batch ID: {batch_idx}")
+        loss = self.loss(batch)
+        self.log(f"loss/{stage}", loss, prog_bar=True)
         return loss
 
-    def _fetch_waveform(self, batch: ty.Dict[str, ty.Any]) -> torch.Tensor:
-        """Fetch and decode the 1 - 2 seconds."""
-        frame_offset, num_frames = 0, 1024  # Fetch and decode the 1 - 2 seconds
-        filename = batch["audio"]["path"][0]
-        logger.trace(f"Fetching waveform from {filename}")
-        waveform, _ = torchaudio.load(
-            filename,
-            frame_offset=frame_offset,
-            num_frames=num_frames,
-        )
-        assert isinstance(waveform, torch.Tensor)
-        return waveform
+    def loss(self, batch: ty.Dict[str, ty.Any]) -> torch.Tensor:
+        """Returns the loss over a batch."""
+        logger.trace(f"Received: {batch}")
+        waveform = fetch_decode_waveform(batch, self.hparams["num_frames"])
+        loss: torch.Tensor = self.model(waveform, raw_texts=[batch["caption"][0]])
+        return loss

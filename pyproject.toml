@@ -25,6 +25,7 @@ ipykernel = "*"
 jupyter = "*"
 jupyter-contrib-nbextensions = "*"
 ipywidgets = "*"
+wget = "^3.2"
 # ML
 numpy = "*"
 catboost = "^1.2"

@@ -130,14 +130,15 @@ class MusicCaps(pl.LightningDataModule):
         return self._loader(self.train)
 
     def val_dataloader(self) -> DataLoader:
-        return self._loader(self.train)
+        return self._loader(self.val)
 
     def test_dataloader(self) -> DataLoader:
-        return self._loader(self.train)
+        return self._loader(self.test)
 
     def _loader(self, ds: Dataset) -> DataLoader:
         """Create DataLoader from Dataset."""
-        return DataLoader(ds, collate_fn=self.collate_fn, **self.loader_kwargs)
+        loader = DataLoader(ds, collate_fn=self.collate_fn, **self.loader_kwargs)
+        return loader
 
 
 def load_musiccaps(
@@ -147,6 +148,7 @@ def load_musiccaps(
     sampling_rate: int = 44100,
     writer_batch_size: int = 1000,
     samples_to_load: int = None,
+    download_mode: str = None,
 ) -> Dataset:
     """
     Args:
@@ -164,7 +166,7 @@ def load_musiccaps(
         Dataset: _description_
     """
     # Load dataset
-    ds = load_dataset("google/MusicCaps", split=split)
+    ds = load_dataset("google/MusicCaps", split=split, download_mode=download_mode)
     # Just select some samples
     if samples_to_load is not None:
         ds = ds.select(range(samples_to_load))
@@ -181,8 +183,8 @@ def load_musiccaps(
 def download_clip(
     video_identifier: str,
     output_filename: str,
-    start_time: str,
-    end_time: str,
+    start_time: float,
+    end_time: float,
     num_attempts: int = 5,
     url_base: str = "https://www.youtube.com/watch?v=",
 ) -> ty.Tuple[bool, str]:
@@ -192,9 +194,9 @@ def download_clip(
             Video's ID.
         output_filename (str):
             Name of the output file.
-        start_time (str):
+        start_time (float):
             Start time of video.
-        end_time (str):
+        end_time (float):
             End time of video.
         num_attempts (int, optional):
             Number of attempts to download video. Defaults to 5.
