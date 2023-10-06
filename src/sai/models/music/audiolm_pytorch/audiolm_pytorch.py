@@ -1,4 +1,5 @@
 import typing as ty
+from loguru import logger
 
 from functools import partial, wraps
 
@@ -635,12 +636,23 @@ class SemanticTransformer(nn.Module):
         self.load_state_dict(pkg["model"])
         return pkg
 
-    def forward_with_cond_scale(self, *args, cond_scale=3, kv_cache=None, return_kv_cache=False, **kwargs):
+    def forward_with_cond_scale(
+        self,
+        *args,
+        cond_scale=3,
+        kv_cache=None,
+        return_kv_cache=False,
+        **kwargs,
+    ):
         kv_cache = iter(default(kv_cache, []))
         new_kv_caches = []
 
         logits, new_kv_cache = self.forward(
-            *args, cond_drop_prob=0.0, kv_cache=next(kv_cache, None), return_kv_cache=True, **kwargs
+            *args,
+            cond_drop_prob=0.0,
+            kv_cache=next(kv_cache, None),
+            return_kv_cache=True,
+            **kwargs,
         )
         new_kv_caches.append(new_kv_cache)
 
@@ -671,10 +683,11 @@ class SemanticTransformer(nn.Module):
         text: Optional[List[str]] = None,
         text_embeds: Optional[torch.Tensor] = None,
         self_attn_mask: Optional[torch.Tensor] = None,
-        cond_drop_prob: Optional[torch.Tensor] = None,
+        cond_drop_prob: Optional[ty.Union[float, torch.Tensor]] = None,
         kv_cache: Optional[torch.Tensor] = None,
         return_kv_cache: bool = False,
     ):
+        assert ids is not None
         device = self.device
         b = ids.shape[0]
 
@@ -2230,6 +2243,8 @@ class FineTransformerWrapper(nn.Module):
 
 
 class AudioLM(nn.Module):
+    """AudioLM."""
+
     @beartype
     def __init__(
         self,
@@ -2288,19 +2303,20 @@ class AudioLM(nn.Module):
     def forward(
         self,
         *,
-        batch_size=1,
+        batch_size: int = 1,
         text: Optional[List[str]] = None,
         text_embeds: Optional[Tensor] = None,
-        prime_wave=None,
-        prime_wave_input_sample_hz=None,
-        prime_wave_path=None,
-        max_length=2048,
-        return_coarse_generated_wave=False,
-        mask_out_generated_fine_tokens=False,
-    ):
+        prime_wave: Optional[Tensor] = None,
+        prime_wave_input_sample_hz: Optional[int] = None,
+        prime_wave_path: Optional[str] = None,
+        max_length: int = 2048,
+        return_coarse_generated_wave: bool = False,
+        mask_out_generated_fine_tokens: bool = False,
+    ) -> Tensor:
+        """Generate audio."""
         assert not (
             self.needs_text and (not exists(text) and not exists(text_embeds))
-        ), "text needs to be passed in if one of the transformer requires conditioning"
+        ), "Text needs to be passed in if one of the transformer requires conditioning."
 
         if self.needs_text:
             if exists(text):
@@ -2308,20 +2324,20 @@ class AudioLM(nn.Module):
 
         assert not (
             exists(prime_wave) and exists(prime_wave_path)
-        ), "prompt audio must be given as either `prime_wave: Tensor` or `prime_wave_path: str`"
+        ), "Prompt audio must be given as either `prime_wave: Tensor` or `prime_wave_path: str`."
 
         if exists(prime_wave):
             assert exists(
                 prime_wave_input_sample_hz
-            ), "the input sample frequency for the prompt audio must be given as `prime_wave_input_sample_hz: int`"
+            ), "The input sample frequency for the prompt audio must be given as `prime_wave_input_sample_hz: int`."
             prime_wave = prime_wave.to(self.device)
         elif exists(prime_wave_path):
             prime_wave_path = Path(prime_wave_path)
             assert exists(prime_wave_path), f"file does not exist at {str(prime_wave_path)}"
-
             prime_wave, prime_wave_input_sample_hz = torchaudio.load(str(prime_wave_path))
             prime_wave = prime_wave.to(self.device)
 
+        logger.info("Generating semantic token...")
         semantic_token_ids = self.semantic.generate(
             text_embeds=text_embeds if self.semantic_has_condition else None,
             batch_size=batch_size,
@@ -2330,6 +2346,7 @@ class AudioLM(nn.Module):
             max_length=max_length,
         )
 
+        logger.info("Generating coarse token...")
         coarse_token_ids_or_recon_wave = self.coarse.generate(
             text_embeds=text_embeds if self.coarse_has_condition else None,
             semantic_token_ids=semantic_token_ids,
@@ -2341,6 +2358,7 @@ class AudioLM(nn.Module):
         if return_coarse_generated_wave:
             return coarse_token_ids_or_recon_wave
 
+        logger.info("Generating wave...")
         generated_wave = self.fine.generate(
             text_embeds=text_embeds if self.fine_has_condition else None,
             coarse_token_ids=coarse_token_ids_or_recon_wave,

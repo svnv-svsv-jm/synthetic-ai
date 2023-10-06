@@ -187,7 +187,7 @@ class AudioLMLightning(pl.LightningModule):
         self,
         batch_size: int = 1,
         prime_wave: Tensor = None,
-        text: ty.Sequence[str] = None,
+        text: ty.Union[str, ty.Sequence[str]] = None,
     ) -> Tensor:
         """Generate Audio."""
         generated_wav: Tensor

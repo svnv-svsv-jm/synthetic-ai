@@ -13,6 +13,9 @@ def test_audiolm() -> None:
     """Test we can initialize the model."""
     # Model
     model = AudioLMLightning(batch_size=4)
+    # Generate
+    generated_wav = model()
+    logger.info(generated_wav)
     # Trainer
     trainer = pl.Trainer(
         logger=False,

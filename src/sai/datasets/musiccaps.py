@@ -65,7 +65,7 @@ class MusicCapsDataset(PytDataset):
 
 
 class MusicCaps(pl.LightningDataModule):
-    """MusicCaps dataset."""
+    """MusicCaps LightningDataModule."""
 
     def __init__(
         self,
