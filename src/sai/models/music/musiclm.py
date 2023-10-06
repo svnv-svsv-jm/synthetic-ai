@@ -3,13 +3,13 @@ __all__ = ["MusicLM"]
 import typing as ty
 from loguru import logger
 
-from musiclm_pytorch import MusicLM as MusicLM_, MuLaNEmbedQuantizer
-from audiolm_pytorch import AudioLM, HubertWithKmeans, SemanticTransformer, SemanticTransformerTrainer
 import lightning.pytorch as pl
 from lightning.pytorch.utilities.types import STEP_OUTPUT, OptimizerLRSchedulerConfig
 import torch
 import torch.optim as optim
 
+from .musiclm_pytorch import MusicLM as MusicLM_, MuLaNEmbedQuantizer
+from .audiolm_pytorch import AudioLM
 from .mulan import MuLaNLightning
 
 

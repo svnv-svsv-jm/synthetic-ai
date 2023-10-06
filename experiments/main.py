@@ -27,7 +27,6 @@ ROOT = pyrootutils.setup_root(
 
 
 @hydra.main(
-    version_base=None,
     config_path=os.path.join(ROOT, "configs"),
     config_name="main",  # change using the flag `--config-name`
 )

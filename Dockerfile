@@ -14,6 +14,7 @@ COPY LICENSE /workdir/LICENSE
 COPY MANIFEST.in /workdir/MANIFEST.in
 COPY src /workdir/src
 COPY poetry.lock /workdir/
+COPY wheels /workdir/wheels
 
 # Change shell to be able to easily activate virtualenv
 SHELL ["/bin/bash", "-c"]
@@ -22,10 +23,12 @@ WORKDIR /workdir
 # Install project
 RUN umask 022 && apt-get update \
     # Install system packages
-    && apt-get install -y --no-install-recommends apt-utils ca-certificates gosu sudo git rustc curl \
+    && apt-get install -y --no-install-recommends apt-utils ca-certificates gosu sudo git rustc curl tree \
     && curl https://sh.rustup.rs -sSf | sh -s -- -y \
     && source "$HOME/.cargo/env" \
     && rm -rf /var/lib/apt/lists/* \
+    # For debugging
+    && tree . \
     # Install Python dependencies
     && pip install virtualenv \
     && virtualenv "/$PROJECT_NAME" \

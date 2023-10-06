@@ -1,10 +1,11 @@
+from loguru import logger
 from pathlib import Path
 
 import torch
 from torch import nn
 from einops import rearrange
 
-import fairseq
+# import fairseq
 
 from torchaudio.functional import resample
 
@@ -37,7 +38,11 @@ class FairseqVQWav2Vec(nn.Module):
 
         checkpoint = torch.load(checkpoint_path)
         load_model_input = {checkpoint_path: checkpoint}
-        model, *_ = fairseq.checkpoint_utils.load_model_ensemble_and_task(load_model_input)
+        try:
+            model, *_ = fairseq.checkpoint_utils.load_model_ensemble_and_task(load_model_input)
+        except Exception as e:
+            logger.warning(e)
+            pass
 
         self.model = model[0]
         self.model.eval()

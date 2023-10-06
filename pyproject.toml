@@ -51,9 +51,7 @@ rich = "^13.5.2"
 hydra-core = "*"
 # UI
 gradio = "^3.45.2"
-# MusicLM
-fairseq = { file = "wheels/fairseq-0.12.2-cp310-cp310-macosx_14_0_arm64.whl", platform = "darwin" }
-musiclm-pytorch = "^0.2.8"
+# Music
 datasets = { extras = ["audio"], version = "^2.14.5" }
 yt-dlp = "^2023.9.24"
 sounddevice = "^0.4.6"

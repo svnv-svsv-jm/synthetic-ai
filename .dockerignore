@@ -12,6 +12,7 @@
 !LICENSE
 !MANIFEST.in
 !src
+!wheels
 
 # Ignore unnecessary files inside allowed directories: this should go after the allowed directories
 **/*~

@@ -49,6 +49,7 @@ BUILD_CMD=$(DOCKER) build -t $(REGISTRY)/$(PROJECT_NAME) --build-arg project_nam
 install-init:
 	$(PYTHON_EXEC) pip install --upgrade pip
 	$(PYTHON_EXEC) pip install --upgrade setuptools virtualenv poetry setuptools_rust
+	$(PYTHON_EXEC) pip install --upgrade fairseq || echo "Failed to install fairseq"
 
 # install main dependencies with poetry (dynamic installation)
 install-w-poetry:

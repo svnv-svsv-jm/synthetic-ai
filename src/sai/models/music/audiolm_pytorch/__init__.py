@@ -19,7 +19,6 @@ from .audiolm_pytorch import (
     SemanticTransformerWrapper,
 )
 
-from .vq_wav2vec import FairseqVQWav2Vec
 from .hubert_kmeans import HubertWithKmeans
 
 from .trainer import (
