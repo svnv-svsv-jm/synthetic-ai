@@ -1,0 +1,6 @@
+# DVC
+
+dvc:
+  _target_: dvclive.lightning.DVCLiveLogger
+  save_dvc_exp: True
+  # dir: "${paths.output_dir}/dvc/"

@@ -1,0 +1,54 @@
+# Garbage
+**/*/__pycache__
+**/.vscode
+**/__pycache__
+*.egg-info
+catboost_info
+
+# Builds
+dist/
+build/
+
+# Data
+.data
+
+# PyTest
+.pytest_cache
+.mypy_cache
+.coverage
+.coverage.*
+.testmon*
+pytest_artifacts
+
+# Google
+.gdrive
+
+# Builds and temporary files
+build
+tmp/
+
+# Personal
+notes.txt
+.env
+Task1
+Task2
+Sen*.pdf
+
+# Checkpoints and logs
+.checkpoints
+lightning_logs
+logs
+hubert_base_ls960.pt
+hubert_base_ls960_L9_km500.bin
+
+# Hydra
+outputs
+
+# Sandbox
+.ipynb_checkpoints
+notebooks/sandbox.ipynb
+notebooks/sandbox
+notebooks/.ipynb_checkpoints/
+notebooks/checkpoints/
+sandbox
+ipython_log.py

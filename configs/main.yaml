@@ -1,0 +1,38 @@
+# @package _global_
+
+defaults:
+  - extras: default.yaml
+  - paths: default.yaml
+  - hydra: default.yaml
+  - callbacks: default.yaml
+  - logger: default.yaml
+  - datamodule: aislellm.yaml
+  - model: llm.yaml
+  - trainer: auto.yaml
+  # - override hydra/sweeper: optuna
+  # - override hydra/sweeper/sampler: tpe
+  # - override hydra/launcher: ray
+  - _self_
+
+# hydra:
+  # launcher:
+  #   ray:
+  #     init:
+  #       address: localhost:6379
+  #       num_gpus: 1
+  # mode: MULTIRUN
+  # sweeper:
+  #   direction: minimize
+  #   n_trials: 20
+  #   n_jobs: 1
+  #   params:
+  #     model.latent_dim: interval(8, 128)
+  #     model.num_layers: interval(1, 6)
+  #     model.optimizer_kwargs.weight_decay: interval(0.001, 0.5)
+# optimize_metric: loss/train
+
+ckpt_path: null
+
+stage: fit
+tag: run/${stage}
+
