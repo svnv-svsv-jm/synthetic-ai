@@ -14,7 +14,6 @@ COPY LICENSE /workdir/LICENSE
 COPY MANIFEST.in /workdir/MANIFEST.in
 COPY src /workdir/src
 COPY poetry.lock /workdir/
-COPY wheels /workdir/wheels
 
 # Change shell to be able to easily activate virtualenv
 SHELL ["/bin/bash", "-c"]
