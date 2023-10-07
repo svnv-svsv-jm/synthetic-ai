@@ -23,7 +23,7 @@ jobs:
       - name: Build Docker Image
         run: docker build -t sai:latest -f Dockerfile .
 
-      - name: Run Command in Docker Image
+      - name: Run PyTest in Docker Image
         run: |
           export LOCAL_USER=$(whoami)
           export LOCAL_USER_ID=$(id -u)

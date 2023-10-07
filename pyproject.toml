@@ -37,8 +37,10 @@ lightning-bolts = "*"
 lightning-transformers = "^0.2.5"
 torch = [
     { version = "*", source = "pytorch", platform = "linux" },
-    { version = "^2.0.0", platform = "darwin" },
+    { version = "^2.0.0", source = "pypi", platform = "darwin" },
 ]
+torchaudio = "^2.1.0"
+lion-pytorch = "^0.1.2"
 torch-geometric = "^2.3.1"
 pytorch-forecasting = { version = "^1.0.0", extras = ["mqf2"] }
 opacus = "^1.4.0"
@@ -54,11 +56,10 @@ rich = "^13.5.2"
 hydra-core = "*"
 # UI
 gradio = "^3.45.2"
-# Music
+# Music/Audio
 datasets = { extras = ["audio"], version = "^2.14.5" }
 yt-dlp = "^2023.9.24"
 sounddevice = "^0.4.6"
-lion-pytorch = "^0.1.2"
 
 [tool.poetry.dev-dependencies]
 cython = "^3.0.2"
