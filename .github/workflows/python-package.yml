@@ -22,15 +22,10 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Create virtual environment
-      run: python -m venv venv
-    - name: Install dependencies
+    - name: Install dependencies and test
       run: |
         sudo apt-get install -y --no-install-recommends apt-utils ca-certificates gosu sudo git rustc curl
         curl https://sh.rustup.rs -sSf | sh -s -- -y
         source "$HOME/.cargo/env"
         make install
-    - name: Test with pytest
-      run: |
-        source venv/bin/activate
-        bash scripts/pytest.sh
+        make pytest
