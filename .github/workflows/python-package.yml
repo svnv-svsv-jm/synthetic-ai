@@ -24,8 +24,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Create virtual environment
       run: python -m venv venv
-    - name: Activate virtual environment
-      run: source venv/bin/activate
     - name: Install dependencies
       run: |
         sudo apt-get install -y --no-install-recommends apt-utils ca-certificates gosu sudo git rustc curl
@@ -34,4 +32,5 @@ jobs:
         make install
     - name: Test with pytest
       run: |
+        source venv/bin/activate
         bash scripts/pytest.sh
