@@ -39,7 +39,10 @@ torch = [
     { version = "*", source = "pytorch", platform = "linux" },
     { version = "^2.0.0", source = "pypi", platform = "darwin" },
 ]
-torchaudio = "^2.1.0"
+torchaudio = [
+    { version = "^2.1.0", source = "pytorch", platform = "linux" },
+    { version = "^2.1.0", source = "pypi", platform = "darwin" },
+]
 lion-pytorch = "^0.1.2"
 torch-geometric = "^2.3.1"
 pytorch-forecasting = { version = "^1.0.0", extras = ["mqf2"] }
