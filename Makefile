@@ -85,6 +85,11 @@ git-squash:
 	git add -A
 	git commit -m "squashed commit"
 
+# Locally delete branches that have been merged
+git-clean:
+	bash scripts/git-clean.sh
+
+
 # -----------
 # docker
 # -----------

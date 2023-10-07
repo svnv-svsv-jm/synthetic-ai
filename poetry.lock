@@ -608,13 +608,13 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "bleach"
-version = "6.0.0"
+version = "6.1.0"
 description = "An easy safelist-based HTML-sanitizing tool."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "bleach-6.0.0-py3-none-any.whl", hash = "sha256:33c16e3353dbd13028ab4799a0f89a83f113405c766e9c122df8a06f5b85b3f4"},
-    {file = "bleach-6.0.0.tar.gz", hash = "sha256:1a1a85c1595e07d8db14c5f09f09e6433502c51c595970edc090551f0db99414"},
+    {file = "bleach-6.1.0-py3-none-any.whl", hash = "sha256:3225f354cfc436b9789c66c4ee030194bee0568fbf9cbdad3bc8b5c26c5f12b6"},
+    {file = "bleach-6.1.0.tar.gz", hash = "sha256:0a31f1837963c41d46bbf1331b8778e1308ea0791db03cc4e7357b97cf42a8fe"},
 ]
 
 [package.dependencies]
@@ -622,7 +622,7 @@ six = ">=1.9.0"
 webencodings = "*"
 
 [package.extras]
-css = ["tinycss2 (>=1.1.0,<1.2)"]
+css = ["tinycss2 (>=1.1.0,<1.3)"]
 
 [[package]]
 name = "blessed"
@@ -1465,13 +1465,13 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "cycler"
-version = "0.12.0"
+version = "0.12.1"
 description = "Composable style cycles"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "cycler-0.12.0-py3-none-any.whl", hash = "sha256:7896994252d006771357777d0251f3e34d266f4fa5f2c572247a80ab01440947"},
-    {file = "cycler-0.12.0.tar.gz", hash = "sha256:8cc3a7b4861f91b1095157f9916f748549a617046e67eb7619abed9b34d2c94a"},
+    {file = "cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30"},
+    {file = "cycler-0.12.1.tar.gz", hash = "sha256:88bb128f02ba341da8ef447245a9e138fae777f6a23943da4540077d3601eb1c"},
 ]
 
 [package.extras]
@@ -4247,17 +4247,17 @@ testing = ["pytest"]
 
 [[package]]
 name = "markdown"
-version = "3.4.4"
+version = "3.5"
 description = "Python implementation of John Gruber's Markdown."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "Markdown-3.4.4-py3-none-any.whl", hash = "sha256:a4c1b65c0957b4bd9e7d86ddc7b3c9868fb9670660f6f99f6d1bca8954d5a941"},
-    {file = "Markdown-3.4.4.tar.gz", hash = "sha256:225c6123522495d4119a90b3a3ba31a1e87a70369e03f14799ea9c0d7183a3d6"},
+    {file = "Markdown-3.5-py3-none-any.whl", hash = "sha256:4afb124395ce5fc34e6d9886dab977fd9ae987fc6e85689f08278cf0c69d4bf3"},
+    {file = "Markdown-3.5.tar.gz", hash = "sha256:a807eb2e4778d9156c8f07876c6e4d50b5494c5665c4834f67b06459dfd877b3"},
 ]
 
 [package.extras]
-docs = ["mdx-gh-links (>=0.2)", "mkdocs (>=1.0)", "mkdocs-nature (>=0.4)"]
+docs = ["mdx-gh-links (>=0.2)", "mkdocs (>=1.5)", "mkdocs-gen-files", "mkdocs-literate-nav", "mkdocs-nature (>=0.6)", "mkdocs-section-index", "mkdocstrings[python]"]
 testing = ["coverage", "pyyaml"]
 
 [[package]]
@@ -4462,8 +4462,8 @@ gitpython = ">=2.1.0,<4"
 gunicorn = {version = "<22", markers = "platform_system != \"Windows\""}
 importlib-metadata = ">=3.7.0,<4.7.0 || >4.7.0,<7"
 Jinja2 = [
-    {version = ">=2.11,<4", markers = "platform_system != \"Windows\""},
     {version = ">=3.0,<4", markers = "platform_system == \"Windows\""},
+    {version = ">=2.11,<4", markers = "platform_system != \"Windows\""},
 ]
 markdown = ">=3.3,<4"
 matplotlib = "<4"
@@ -6228,18 +6228,21 @@ test = ["cloudpickle (>=1.3)", "coverage (==7.3.0)", "fastapi (<0.100.0)", "onnx
 
 [[package]]
 name = "pytorch-optimizer"
-version = "2.11.2"
+version = "2.12.0"
 description = "optimizer & lr scheduler & objective function collections in PyTorch"
 optional = false
 python-versions = ">=3.7.2,<4.0.0"
 files = [
-    {file = "pytorch_optimizer-2.11.2-py3-none-any.whl", hash = "sha256:b70c437498b7d2aaec536814ef1d5219aceae0b0cafbc151e6b8695de01e8c85"},
-    {file = "pytorch_optimizer-2.11.2.tar.gz", hash = "sha256:4b1b2d57a9324464a6447fac72c140da7e9d74299685686cec6be3417f8b7056"},
+    {file = "pytorch_optimizer-2.12.0-py3-none-any.whl", hash = "sha256:1683f305265c9428b486365fc1286d792e6cacac97eb10395a725d460d441152"},
+    {file = "pytorch_optimizer-2.12.0.tar.gz", hash = "sha256:81bd70988b564853f8a0e5ec3f787e385b727d205782a95d209145939dddec79"},
 ]
 
 [package.dependencies]
 numpy = {version = "*", markers = "python_version >= \"3.8\""}
 torch = {version = ">=1.10", markers = "python_version >= \"3.8\""}
+
+[package.extras]
+bitsandbytes = ["bitsandbytes (>=0.41,<0.42)"]
 
 [[package]]
 name = "pytz"
@@ -6314,16 +6317,17 @@ files = [
 
 [[package]]
 name = "pywinpty"
-version = "2.0.11"
+version = "2.0.12"
 description = "Pseudo terminal support for Windows from Python."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pywinpty-2.0.11-cp310-none-win_amd64.whl", hash = "sha256:452f10ac9ff8ab9151aa8cea9e491a9612a12250b1899278c6a56bc184afb47f"},
-    {file = "pywinpty-2.0.11-cp311-none-win_amd64.whl", hash = "sha256:6701867d42aec1239bc0fedf49a336570eb60eb886e81763db77ea2b6c533cc3"},
-    {file = "pywinpty-2.0.11-cp38-none-win_amd64.whl", hash = "sha256:0ffd287751ad871141dc9724de70ea21f7fc2ff1af50861e0d232cf70739d8c4"},
-    {file = "pywinpty-2.0.11-cp39-none-win_amd64.whl", hash = "sha256:e4e7f023c28ca7aa8e1313e53ba80a4d10171fe27857b7e02f99882dfe3e8638"},
-    {file = "pywinpty-2.0.11.tar.gz", hash = "sha256:e244cffe29a894876e2cd251306efd0d8d64abd5ada0a46150a4a71c0b9ad5c5"},
+    {file = "pywinpty-2.0.12-cp310-none-win_amd64.whl", hash = "sha256:21319cd1d7c8844fb2c970fb3a55a3db5543f112ff9cfcd623746b9c47501575"},
+    {file = "pywinpty-2.0.12-cp311-none-win_amd64.whl", hash = "sha256:853985a8f48f4731a716653170cd735da36ffbdc79dcb4c7b7140bce11d8c722"},
+    {file = "pywinpty-2.0.12-cp312-none-win_amd64.whl", hash = "sha256:1617b729999eb6713590e17665052b1a6ae0ad76ee31e60b444147c5b6a35dca"},
+    {file = "pywinpty-2.0.12-cp38-none-win_amd64.whl", hash = "sha256:189380469ca143d06e19e19ff3fba0fcefe8b4a8cc942140a6b863aed7eebb2d"},
+    {file = "pywinpty-2.0.12-cp39-none-win_amd64.whl", hash = "sha256:7520575b6546db23e693cbd865db2764097bd6d4ef5dc18c92555904cd62c3d4"},
+    {file = "pywinpty-2.0.12.tar.gz", hash = "sha256:8197de460ae8ebb7f5d1701dfa1b5df45b157bb832e92acba316305e18ca00dd"},
 ]
 
 [[package]]
@@ -7746,8 +7750,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.18", markers = "python_version != \"3.10\" or platform_system != \"Windows\" or platform_python_implementation == \"PyPy\""},
     {version = ">=1.22.3", markers = "python_version == \"3.10\" and platform_system == \"Windows\" and platform_python_implementation != \"PyPy\""},
+    {version = ">=1.18", markers = "python_version != \"3.10\" or platform_system != \"Windows\" or platform_python_implementation == \"PyPy\""},
 ]
 packaging = ">=21.3"
 pandas = ">=1.0"
@@ -8123,6 +8127,40 @@ typing-extensions = "*"
 
 [package.extras]
 opt-einsum = ["opt-einsum (>=3.3)"]
+
+[[package]]
+name = "torch"
+version = "2.1.0+cpu"
+description = "Tensors and Dynamic neural networks in Python with strong GPU acceleration"
+optional = false
+python-versions = ">=3.8.0"
+files = [
+    {file = "torch-2.1.0+cpu-cp310-cp310-linux_x86_64.whl", hash = "sha256:5077921fc2b54e69a534f3a9c0b98493c79a5547c49d46f5e77e42da3610e011"},
+    {file = "torch-2.1.0+cpu-cp310-cp310-win_amd64.whl", hash = "sha256:ebba26871b24cb979ed0a24756a773eb6ea04c002b4f71392b50232723d80a6d"},
+    {file = "torch-2.1.0+cpu-cp311-cp311-linux_x86_64.whl", hash = "sha256:5954924ce74bc7e6a6c811e3fa4bdda9936d9889f6369fd068420c444bfd1cae"},
+    {file = "torch-2.1.0+cpu-cp311-cp311-win_amd64.whl", hash = "sha256:c2ec46e3c00d9c642448c92243d9d7de64b3934d746e5ea8661791c2155bd2b9"},
+    {file = "torch-2.1.0+cpu-cp38-cp38-linux_x86_64.whl", hash = "sha256:9e5cfd931a65b38d222755a45dabb53b836be31bc620532bc66fee77e3ff67dc"},
+    {file = "torch-2.1.0+cpu-cp38-cp38-win_amd64.whl", hash = "sha256:45b16d0b893d0c3cf8a4d7cc88234d7d83b3fa0d97d1d3adb18c2384da13f094"},
+    {file = "torch-2.1.0+cpu-cp39-cp39-linux_x86_64.whl", hash = "sha256:86cc28df491fa84738affe752f9870791026565342f69e4ab63e5b935f00a495"},
+    {file = "torch-2.1.0+cpu-cp39-cp39-win_amd64.whl", hash = "sha256:6b3c36d1597ec2a72e7e996b999a95372821292c0d2f86e9404d89f1d1fac557"},
+]
+
+[package.dependencies]
+filelock = "*"
+fsspec = "*"
+jinja2 = "*"
+networkx = "*"
+sympy = "*"
+typing-extensions = "*"
+
+[package.extras]
+dynamo = ["jinja2"]
+opt-einsum = ["opt-einsum (>=3.3)"]
+
+[package.source]
+type = "legacy"
+url = "https://download.pytorch.org/whl/cpu"
+reference = "pytorch"
 
 [[package]]
 name = "torch-geometric"
@@ -9046,13 +9084,13 @@ unicode = ["tangled-up-in-unicode (==0.2.0)"]
 
 [[package]]
 name = "yt-dlp"
-version = "2023.9.24"
+version = "2023.10.7"
 description = "A youtube-dl fork with additional features and patches"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "yt-dlp-2023.9.24.tar.gz", hash = "sha256:cfcfb5ffc12013b6ae4b8c7a283a7e462988f1b49283de291de8bfbe053b8073"},
-    {file = "yt_dlp-2023.9.24-py2.py3-none-any.whl", hash = "sha256:61792482647faac6207b1795b52d73714803414d8c090cd9721dfe8b16b12605"},
+    {file = "yt-dlp-2023.10.7.tar.gz", hash = "sha256:fc86657a9b240cf65fef3ff627e4a0de335e725936fe70d4402c71dd97452f36"},
+    {file = "yt_dlp-2023.10.7-py2.py3-none-any.whl", hash = "sha256:5f5253aec0a7e18c991d7412ee293eee99f73249b360f4adb9a3f529b769d9d9"},
 ]
 
 [package.dependencies]
@@ -9098,4 +9136,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "38a877ce05582714c3bd56eadc8df965104d604e743f4d9a645772c226f32017"
+content-hash = "a0f12ced05ff5f85f01104bcbb14e36bebc7c73a1d4c768c363c1bc9fca6e7ce"

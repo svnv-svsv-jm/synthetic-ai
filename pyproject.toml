@@ -35,7 +35,10 @@ shap = "^0.42.1"
 lightning = "^2.0.0"
 lightning-bolts = "*"
 lightning-transformers = "^0.2.5"
-torch = "^2.0.0"
+torch = [
+    { version = "*", source = "pytorch", platform = "linux" },
+    { version = "^2.0.0", platform = "darwin" },
+]
 torch-geometric = "^2.3.1"
 pytorch-forecasting = { version = "^1.0.0", extras = ["mqf2"] }
 opacus = "^1.4.0"
@@ -75,3 +78,8 @@ pytest-testmon = "*"
 pytest-xdist = "*"
 virtualenv = "*"
 nbmake = "*"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
