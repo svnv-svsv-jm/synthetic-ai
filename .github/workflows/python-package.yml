@@ -27,9 +27,10 @@ jobs:
         sudo apt-get install -y --no-install-recommends apt-utils ca-certificates gosu sudo git rustc curl
         curl https://sh.rustup.rs -sSf | sh -s -- -y
         source "$HOME/.cargo/env"
+        pip install --upgrade pip
         pip install virtualenv
-        virtualenv /venv
-        source "/venv/bin/activate"
-        export PYTHON=/venv/bin/python
+        virtualenv venv
+        source venv/bin/activate
+        export PYTHON=venv/bin/python
         make install
         make pytest
