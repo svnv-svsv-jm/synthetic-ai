@@ -530,6 +530,24 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [[package]]
+name = "beartype"
+version = "0.16.2"
+description = "Unbearably fast runtime type checking in pure Python."
+optional = false
+python-versions = ">=3.8.0"
+files = [
+    {file = "beartype-0.16.2-py3-none-any.whl", hash = "sha256:72d133615fe674affc8c49365dd24dfe2260552b9a8a2b7193cdd48021527782"},
+    {file = "beartype-0.16.2.tar.gz", hash = "sha256:47ec1c8c3be3f999f4f9f829e8913f65926aa7e85b180d9ffd305dc78d3e7d7b"},
+]
+
+[package.extras]
+all = ["typing-extensions (>=3.10.0.0)"]
+dev = ["autoapi (>=0.9.0)", "coverage (>=5.5)", "mypy (>=0.800)", "numpy", "pandera", "pydata-sphinx-theme (<=0.7.2)", "pytest (>=4.0.0)", "sphinx", "sphinx (>=4.2.0,<6.0.0)", "sphinxext-opengraph (>=0.7.5)", "tox (>=3.20.1)", "typing-extensions (>=3.10.0.0)"]
+doc-rtd = ["autoapi (>=0.9.0)", "pydata-sphinx-theme (<=0.7.2)", "sphinx (>=4.2.0,<6.0.0)", "sphinxext-opengraph (>=0.7.5)"]
+test-tox = ["mypy (>=0.800)", "numpy", "pandera", "pytest (>=4.0.0)", "sphinx", "typing-extensions (>=3.10.0.0)"]
+test-tox-coverage = ["coverage (>=5.5)"]
+
+[[package]]
 name = "beautifulsoup4"
 version = "4.12.2"
 description = "Screen-scraping library"
@@ -2109,6 +2127,17 @@ tf = ["tensorflow"]
 xgb = ["xgboost"]
 
 [[package]]
+name = "einops"
+version = "0.7.0"
+description = "A new flavour of deep learning operations"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "einops-0.7.0-py3-none-any.whl", hash = "sha256:0f3096f26b914f465f6ff3c66f5478f9a5e380bb367ffc6493a68143fbbf1fd1"},
+    {file = "einops-0.7.0.tar.gz", hash = "sha256:b2b04ad6081a3b227080c9bf5e3ace7160357ff03043cd66cc5b2319eb7031d1"},
+]
+
+[[package]]
 name = "entrypoints"
 version = "0.4"
 description = "Discover and load entry points from installed packages."
@@ -2456,6 +2485,20 @@ sftp = ["paramiko"]
 smb = ["smbprotocol"]
 ssh = ["paramiko"]
 tqdm = ["tqdm"]
+
+[[package]]
+name = "ftfy"
+version = "6.1.1"
+description = "Fixes mojibake and other problems with Unicode, after the fact"
+optional = false
+python-versions = ">=3.7,<4"
+files = [
+    {file = "ftfy-6.1.1-py3-none-any.whl", hash = "sha256:0ffd33fce16b54cccaec78d6ec73d95ad370e5df5a25255c8966a6147bd667ca"},
+    {file = "ftfy-6.1.1.tar.gz", hash = "sha256:bfc2019f84fcd851419152320a6375604a0f1459c281b5b199b2cd0d2e727f8f"},
+]
+
+[package.dependencies]
+wcwidth = ">=0.2.5"
 
 [[package]]
 name = "funcy"
@@ -4462,8 +4505,8 @@ gitpython = ">=2.1.0,<4"
 gunicorn = {version = "<22", markers = "platform_system != \"Windows\""}
 importlib-metadata = ">=3.7.0,<4.7.0 || >4.7.0,<7"
 Jinja2 = [
-    {version = ">=3.0,<4", markers = "platform_system == \"Windows\""},
     {version = ">=2.11,<4", markers = "platform_system != \"Windows\""},
+    {version = ">=3.0,<4", markers = "platform_system == \"Windows\""},
 ]
 markdown = ">=3.3,<4"
 matplotlib = "<4"
@@ -7750,8 +7793,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.22.3", markers = "python_version == \"3.10\" and platform_system == \"Windows\" and platform_python_implementation != \"PyPy\""},
     {version = ">=1.18", markers = "python_version != \"3.10\" or platform_system != \"Windows\" or platform_python_implementation == \"PyPy\""},
+    {version = ">=1.22.3", markers = "python_version == \"3.10\" and platform_system == \"Windows\" and platform_python_implementation != \"PyPy\""},
 ]
 packaging = ">=21.3"
 pandas = ">=1.0"
@@ -8093,29 +8136,8 @@ name = "torch"
 version = "2.1.0"
 description = "Tensors and Dynamic neural networks in Python with strong GPU acceleration"
 optional = false
-python-versions = ">=3.8.0"
-files = [
-    {file = "torch-2.1.0-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:bf57f8184b2c317ef81fb33dc233ce4d850cd98ef3f4a38be59c7c1572d175db"},
-    {file = "torch-2.1.0-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:a04a0296d47f28960f51c18c5489a8c3472f624ec3b5bcc8e2096314df8c3342"},
-    {file = "torch-2.1.0-cp310-cp310-win_amd64.whl", hash = "sha256:0bd691efea319b14ef239ede16d8a45c246916456fa3ed4f217d8af679433cc6"},
-    {file = "torch-2.1.0-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:101c139152959cb20ab370fc192672c50093747906ee4ceace44d8dd703f29af"},
-    {file = "torch-2.1.0-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:a6b7438a90a870e4cdeb15301519ae6c043c883fcd224d303c5b118082814767"},
-    {file = "torch-2.1.0-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:2224622407ca52611cbc5b628106fde22ed8e679031f5a99ce286629fc696128"},
-    {file = "torch-2.1.0-cp311-cp311-manylinux2014_aarch64.whl", hash = "sha256:8132efb782cd181cc2dcca5e58effbe4217cdb2581206ac71466d535bf778867"},
-    {file = "torch-2.1.0-cp311-cp311-win_amd64.whl", hash = "sha256:5c3bfa91ce25ba10116c224c59d5b64cdcce07161321d978bd5a1f15e1ebce72"},
-    {file = "torch-2.1.0-cp311-none-macosx_10_9_x86_64.whl", hash = "sha256:601b0a2a9d9233fb4b81f7d47dca9680d4f3a78ca3f781078b6ad1ced8a90523"},
-    {file = "torch-2.1.0-cp311-none-macosx_11_0_arm64.whl", hash = "sha256:3cd1dedff13884d890f18eea620184fb4cd8fd3c68ce3300498f427ae93aa962"},
-    {file = "torch-2.1.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:fb7bf0cc1a3db484eb5d713942a93172f3bac026fcb377a0cd107093d2eba777"},
-    {file = "torch-2.1.0-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:761822761fffaa1c18a62c5deb13abaa780862577d3eadc428f1daa632536905"},
-    {file = "torch-2.1.0-cp38-cp38-win_amd64.whl", hash = "sha256:458a6d6d8f7d2ccc348ac4d62ea661b39a3592ad15be385bebd0a31ced7e00f4"},
-    {file = "torch-2.1.0-cp38-none-macosx_10_9_x86_64.whl", hash = "sha256:c8bf7eaf9514465e5d9101e05195183470a6215bb50295c61b52302a04edb690"},
-    {file = "torch-2.1.0-cp38-none-macosx_11_0_arm64.whl", hash = "sha256:05661c32ec14bc3a157193d0f19a7b19d8e61eb787b33353cad30202c295e83b"},
-    {file = "torch-2.1.0-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:556d8dd3e0c290ed9d4d7de598a213fb9f7c59135b4fee144364a8a887016a55"},
-    {file = "torch-2.1.0-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:de7d63c6ecece118684415a3dbd4805af4a4c1ee1490cccf7405d8c240a481b4"},
-    {file = "torch-2.1.0-cp39-cp39-win_amd64.whl", hash = "sha256:2419cf49aaf3b2336c7aa7a54a1b949fa295b1ae36f77e2aecb3a74e3a947255"},
-    {file = "torch-2.1.0-cp39-none-macosx_10_9_x86_64.whl", hash = "sha256:6ad491e70dbe4288d17fdbfc7fbfa766d66cbe219bc4871c7a8096f4a37c98df"},
-    {file = "torch-2.1.0-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:421739685eba5e0beba42cb649740b15d44b0d565c04e6ed667b41148734a75b"},
-]
+python-versions = "*"
+files = []
 
 [package.dependencies]
 filelock = "*"
@@ -8124,9 +8146,6 @@ jinja2 = "*"
 networkx = "*"
 sympy = "*"
 typing-extensions = "*"
-
-[package.extras]
-opt-einsum = ["opt-einsum (>=3.3)"]
 
 [[package]]
 name = "torch"
@@ -8900,6 +8919,25 @@ numpy = ">=1.6.1"
 pillow = "*"
 
 [[package]]
+name = "x-clip"
+version = "0.14.1"
+description = "X-CLIP"
+optional = false
+python-versions = "*"
+files = [
+    {file = "x-clip-0.14.1.tar.gz", hash = "sha256:da9201fbfdc32554295b134f2afb7bc1c9155cb1ec26656213bbcba39dc0c2b4"},
+    {file = "x_clip-0.14.1-py3-none-any.whl", hash = "sha256:6ceaacd2e8ffb612be6b10ae1f11a577bec9bf9ded96dcaa7bd6b70b6f920523"},
+]
+
+[package.dependencies]
+beartype = "*"
+einops = ">=0.6"
+ftfy = "*"
+regex = "*"
+torch = ">=1.6"
+torchvision = "*"
+
+[[package]]
 name = "xxhash"
 version = "3.4.1"
 description = "Python binding for xxHash"
@@ -9193,4 +9231,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "305fa57329fab564f4d45d3059952ed845dfced20ceebd23a0d83737c912b277"
+content-hash = "06da9054b117379cb70313587717fdb1725bfd9ec6ef6d765f66c9d1fa23d314"
