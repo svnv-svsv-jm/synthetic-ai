@@ -6,25 +6,19 @@ from shutil import rmtree
 from functools import wraps, partial
 
 from typing_extensions import Annotated
-
 from beartype import beartype
 from beartype.door import is_bearable
 from beartype.vale import Is
 from beartype.typing import Union, List, Optional, Tuple, Callable
-
 import torch
 from torch import nn
 from torch.optim import Adam
 from torch.utils.data import Dataset, DataLoader, random_split
 from torch.nn.utils.rnn import pad_sequence
-
 from lion_pytorch import Lion
+from accelerate import Accelerator
 
 from .musiclm_pytorch import MuLaN
-
-from einops import rearrange
-
-from accelerate import Accelerator
 
 # for automatically routing data emitted from a dataset to keywords of the transformer wrappers
 

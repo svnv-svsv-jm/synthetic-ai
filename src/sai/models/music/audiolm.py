@@ -1,8 +1,8 @@
 __all__ = ["AudioLMLightning"]
 
 import typing as ty
-from typing import Any
 from loguru import logger
+import os
 
 from pathlib import Path
 import lightning.pytorch as pl
@@ -50,7 +50,7 @@ class AudioLMLightning(pl.LightningModule):
         num_frames: int = 1024,
         lr: float = 1e-8,
         patience: int = 2,
-        data_folder: str = ".data/music_data",
+        data_folder: str = os.path.join(".data", "music_data"),
         split: ty.Sequence[ty.Union[int, float]] = (0.5, 0.3, 0.2),
         batch_size: int = 1,
         data_max_length_seconds: int = 2,

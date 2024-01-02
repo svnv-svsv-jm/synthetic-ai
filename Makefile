@@ -45,28 +45,12 @@ BUILD_CMD=$(DOCKER) build -t $(REGISTRY)/$(PROJECT_NAME) --build-arg project_nam
 # -----------
 # install project's dependencies
 # -----------
-# dev dependencies
 install-init:
 	$(PYTHON_EXEC) pip install --upgrade pip
-	$(PYTHON_EXEC) pip install --upgrade setuptools virtualenv poetry setuptools_rust
+	$(PYTHON_EXEC) pip install --upgrade poetry setuptools virtualenv setuptools_rust
 
-# install main dependencies with poetry (dynamic installation)
-install-w-poetry:
+install: install-init
 	$(PYTHON_EXEC) $(POETRY) install --no-cache
-
-poetry-lock:
-	nohup poetry lock 2>&1 > logs/poetry-lock.log &
-
-# MAIN: w poetry (dynamic): install dev deps, then main deps, export frozen, then project
-poetry-install: install-init
-poetry-install: install-w-poetry
-
-# MAIN: default installation method
-install: poetry-install
-
-install-nohup:
-	mkdir -p logs || echo "Folder already exists."
-	nohup make install 2>&1 > logs/install.log &
 
 
 # -----------
@@ -74,6 +58,8 @@ install-nohup:
 # -----------
 pytest:
 	bash scripts/pytest.sh
+
+test: pytest
 
 
 # ---

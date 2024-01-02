@@ -11,9 +11,6 @@ packages = [{ include = "sai", from = "src" }]
 requires = ["poetry-core>=1.0.0", "cython"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-line-length = 110
-
 [tool.poetry.dependencies]
 # Python versions
 python = ">=3.10,<3.11"
@@ -88,3 +85,26 @@ nbmake = "*"
 name = "pytorch"
 url = "https://download.pytorch.org/whl/cpu"
 priority = "explicit"
+
+[tool.black]
+line-length = 110
+
+[tool.mypy]
+exclude = ["test/conftest.py"]
+warn_return_any = true
+warn_unused_configs = true
+mypy_path = ["src"]
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+ignore_errors = false
+ignore_missing_imports = true
+no_implicit_optional = false
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+norecursedirs = ["test/res"]
+testpaths = ["test"]
+log_cli = true
+addopts = "-x --pylint --disable-pytest-warnings --cov=src/ --cov-fail-under 98 --durations=5"
