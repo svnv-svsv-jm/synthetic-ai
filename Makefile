@@ -17,7 +17,7 @@ export $(shell sed 's/=.*//' .env)
 LOCAL_USER:=$(shell whoami)
 LOCAL_USER_ID:=$(shell id -u)
 # project
-PROJECT_NAME?=sdata
+PROJECT_NAME?=sai
 # python
 PYTHON?=python
 PYTHON_EXEC?=python -m
