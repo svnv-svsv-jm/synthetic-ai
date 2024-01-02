@@ -41,5 +41,6 @@ jobs:
       - name: Install dependencies and test
         run: |
           sudo bash scripts/install-system-packages.sh
+          export PROJECT_NAME="sai"
           bash scripts/setup-virtualenv.sh
           make pytest
