@@ -1,15 +1,5 @@
 set -ex
 
-# Install system packages
-apt-get update
-apt-get install -y --no-install-recommends apt-utils ca-certificates gosu sudo git rustc curl tree
-curl https://sh.rustup.rs -sSf | sh -s -- -y
-source "$HOME/.cargo/env"
-rm -rf /var/lib/apt/lists/*
-
-# For debugging
-tree .
-
 # Install Python dependencies
 pip install virtualenv
 virtualenv "/$PROJECT_NAME"

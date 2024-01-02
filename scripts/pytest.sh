@@ -7,6 +7,6 @@ echo "Using: ${PYTHON}"
 
 mkdir -p logs
 
-$PYTHON -m pytest -x --testmon --nbmake --overwrite "./notebooks"
+$PYTHON -m pytest -x --testmon --nbmake --overwrite "./examples"
 $PYTHON -m mypy test
 $PYTHON -m pytest -x --testmon --pylint
