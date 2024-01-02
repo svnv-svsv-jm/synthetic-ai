@@ -40,6 +40,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies and test
         run: |
-          bash scripts/install-system-packages.sh
+          sudo bash scripts/install-system-packages.sh
           bash scripts/setup-virtualenv.sh
           make pytest
