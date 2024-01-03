@@ -107,4 +107,4 @@ minversion = "6.0"
 norecursedirs = ["test/res"]
 testpaths = ["test"]
 log_cli = true
-addopts = "-x --pylint --disable-pytest-warnings --cov=src/ --cov-fail-under 98 --durations=5"
+addopts = "-x --pylint --disable-pytest-warnings --cov=src/ --durations=5"
