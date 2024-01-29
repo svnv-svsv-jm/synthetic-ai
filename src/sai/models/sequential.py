@@ -384,8 +384,7 @@ class TimeGAN(pl.LightningModule):
             n_cols = df_.size(-1)
             if columns is None:
                 columns = [f"col_{i}" for i in range(n_cols)]
-            cols = ["time_idx"] + columns
-            df = pd.DataFrame(df_.detach().cpu().numpy(), columns=cols)
+            df = pd.DataFrame(df_.detach().cpu().numpy(), columns=columns)
             return df
         return X
 

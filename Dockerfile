@@ -6,13 +6,7 @@ ENV PROJECT_NAME=$project_name
 
 # Create workdir and copy dependency files
 RUN mkdir -p /workdir
-COPY pyproject.toml /workdir/pyproject.toml
-COPY Makefile /workdir/Makefile
-COPY scripts /workdir/scripts
-COPY README.md /workdir/README.md
-COPY LICENSE /workdir/LICENSE
-COPY src /workdir/src
-COPY poetry.lock /workdir/
+COPY . /workdir
 
 # Change shell to be able to easily activate virtualenv
 SHELL ["/bin/bash", "-c"]
