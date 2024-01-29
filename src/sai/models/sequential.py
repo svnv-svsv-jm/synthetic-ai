@@ -75,13 +75,13 @@ class TransformerLanguageModel(nn.Module):
             embedded = embedded.squeeze(2)
         else:
             embedded = self.preprocess(x.float())
-        logger.trace(f"embedded: {embedded.size()}|{embedded.requires_grad}")
+        logger.trace(f"embedded: {embedded.size()} | requires_grad={embedded.requires_grad}")
         output: Tensor = self.transformer(embedded, embedded)
-        logger.trace(f"output: {output.size()}|{output.requires_grad}")
+        logger.trace(f"output: {output.size()} | requires_grad={output.requires_grad}")
         output = output.view(B, L, -1)
-        logger.trace(f"output: {output.size()}|{output.requires_grad}")
+        logger.trace(f"output: {output.size()} | requires_grad={output.requires_grad}")
         output = self.fc(output)
-        logger.trace(f"output: {output.size()}|{output.requires_grad}")
+        logger.trace(f"output: {output.size()} | requires_grad={output.requires_grad}")
         return output
 
 
@@ -308,8 +308,10 @@ class TimeGAN(pl.LightningModule):
     ) -> None:
         """
         Args:
-            lr (float, optional): _description_. Defaults to 1e-5.
-            n_critic (int, optional): _description_. Defaults to 5.
+            lr (float, optional):
+                Learning rate. Defaults to 1e-5.
+            n_critic (int, optional):
+                Frequency for the Discriminator training. See :method:`lightning.pytorch.LightningModule.configure_optimizers()` method's documentation. Defaults to 5.
         """
         super().__init__()
         self.save_hyperparameters()
@@ -331,11 +333,16 @@ class TimeGAN(pl.LightningModule):
         batch_size: int = 1,
         sequence_length: int = None,
     ) -> Tensor:
-        """_summary_
+        """
         Args:
-            x (Tensor): _description_
+            x (Tensor | Sequence[int] | torch.Size, optional):
+                If `Tensor`, only needed to get its size. Otherwise just input a `Sequence[int] | torch.Size` object.
+            batch_size (int, optional):
+                Batch size. Defaults to 1.
+            sequence_length (int, optional):
+                Sequence length. Defaults to None.
         Returns:
-            Tensor: _description_
+            Tensor: Generated sequence.
         """
         self.D = self.discriminator.vocab_size
         if x is None:
@@ -353,6 +360,7 @@ class TimeGAN(pl.LightningModule):
         self,
         pad_value: int = None,
         to_df: bool = True,
+        columns: ty.Sequence[str] = None,
         **kwargs: ty.Any,
     ) -> ty.Union[Tensor, pd.DataFrame]:
         """Generate a sequence of tokens.
@@ -368,12 +376,16 @@ class TimeGAN(pl.LightningModule):
                     index = idx[0]
                     X[i, index:] = pad_value
         if to_df:
-            df = torch.Tensor([])
+            df_ = torch.Tensor([])
             for i, x in enumerate(X):
                 idx = torch.ones_like(x)
                 g = torch.cat((idx.view(-1, 1), x.view(-1, 1)), dim=-1)
-                df = torch.cat((df, g), dim=0)
-            df = pd.DataFrame(df.detach().cpu().numpy())
+                df_ = torch.cat((df_, g), dim=0)
+            n_cols = df_.size(-1)
+            if columns is None:
+                columns = [f"col_{i}" for i in range(n_cols)]
+            cols = ["time_idx"] + columns
+            df = pd.DataFrame(df_.detach().cpu().numpy(), columns=cols)
             return df
         return X
 

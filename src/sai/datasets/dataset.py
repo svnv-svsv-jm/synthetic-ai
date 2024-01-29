@@ -189,12 +189,16 @@ class AisleDataModule(pl.LightningDataModule):
         generator: torch.Generator = None,
         **kwargs: ty.Any,
     ) -> None:
-        """_summary_
+        """
         Args:
-            batch_size (int, optional): _description_. Defaults to 1.
-            lengths (ty.Sequence[ty.Union[int, float]], optional): _description_. Defaults to [0.8, 0.2].
-            num_workers (int, optional): _description_. Defaults to 1.
-            pin_memory (bool, optional): _description_. Defaults to True.
+            batch_size (int, optional):
+                Batch size. Defaults to 1.
+            lengths (ty.Sequence[ty.Union[int, float]], optional):
+                See :func:`torch.utils.data.random_split`. Defaults to [0.8, 0.2].
+            num_workers (int, optional):
+                See :class:`torch.utils.data.DataLoader`. Defaults to 1.
+            pin_memory (bool, optional):
+                See :class:`torch.utils.data.DataLoader`. Defaults to True.
         """
         super().__init__()
         self.batch_size = batch_size
