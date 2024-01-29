@@ -1,13 +1,14 @@
 # pylint: disable=not-callable
-import torch
-from torch.nn import Linear, Module, ReLU, Sequential
-from torch.nn.functional import cross_entropy, mse_loss
-from torch.optim import Adam
-
-from typing import List
+from typing import List, Any, Sequence
 from loguru import logger
 import numpy as np
 import pandas as pd
+import torch
+from torch import Tensor
+from torch.nn import Linear, Module, ReLU, Sequential
+from torch.nn.functional import cross_entropy, mse_loss
+from torch.optim import Adam
+from torch.utils.data import TensorDataset, DataLoader
 
 from ..synthesizers.base import BaseSynthesizer
 from ..synthesizers.data_processor import FlatStandardOneHot
@@ -16,7 +17,7 @@ from ..synthesizers.data_processor import FlatStandardOneHot
 class Encoder(Module):
     """Encoder."""
 
-    def __init__(self, data_dim, compress_dims, embedding_dim):  # type: ignore
+    def __init__(self, data_dim: int, compress_dims: Sequence[int], embedding_dim: int) -> None:
         """_summary_
 
         Args:
@@ -24,7 +25,7 @@ class Encoder(Module):
             compress_dims (_type_): _description_
             embedding_dim (_type_): _description_
         """
-        super(Encoder, self).__init__()
+        super().__init__()
         dim = data_dim
         seq = []
         for item in list(compress_dims):
@@ -53,7 +54,7 @@ class Encoder(Module):
 class Decoder(Module):
     """Decoder."""
 
-    def __init__(self, embedding_dim, decompress_dims, data_dim):  # type: ignore
+    def __init__(self, embedding_dim: int, decompress_dims: Sequence[int], data_dim: int) -> None:
         """_summary_
 
         Args:
@@ -195,53 +196,59 @@ class FlatAutoEncoderSynthesizer(BaseSynthesizer):
         self.cat_threshold = cat_threshold
         self.batch_size = batch_size
         self.sample_tech = sample_tech
-
         # for formatting issues
         self._underscore_column_mapping = {}  # type: ignore
-
         if torch.cuda.is_available():
             self.dev = "cuda"
         else:
             self.dev = "cpu"
-
         self.device = torch.device(self.dev)
+        logger.debug(f"Using {self.device} for computation")
+        # other attributes
+        self.raw_generated_data: pd.DataFrame
+        self.transformed_data: pd.DataFrame
+        self.data_processor: FlatStandardOneHot
+        self.encoder_: Encoder
+        self.decoder_: Decoder
 
-        logger.info(f"Using {self.device} for computation")
-
-    def fit(self, target_data: pd.DataFrame, verbose: bool = False) -> torch.Tensor:  # type: ignore
-        """_summary_
+    def fit(
+        self,
+        target_data: pd.DataFrame,
+        **kwargs: Any,
+    ) -> None:
+        """Runs the training loop and fits the model.
         Args:
-            target_data (pd.DataFrame): _description_
-            verbose (bool, optional): _description_. Defaults to False.
-        Returns:
-            torch.Tensor: _description_
+            target_data (pd.DataFrame):
+                Training data.
         """
-        super().fit(target_data)
-
-        if verbose:
-            logger.warning("Deprecated argument `verbose`.")
-
+        # Call superclass to run relevant checks
+        super().fit(target_data, **kwargs)
+        # Transform data
         prepared_data, self._underscore_column_mapping = _clean_data(target_data)  # type: ignore
         self.data_processor = FlatStandardOneHot()
         self.transformed_data = self.data_processor.transform(prepared_data)
-
-        x = torch.tensor(self.transformed_data.astype(np.float32).values).to(self.device)
-        train = torch.utils.data.TensorDataset(x)
-        training_generator = torch.utils.data.DataLoader(
-            train, batch_size=self.batch_size, shuffle=True, drop_last=True
-        )
-
+        # Prepare dataframe as tensordataset
+        x: Tensor = Tensor(self.transformed_data.astype(np.float32).values).to(self.device)
+        train = TensorDataset(x)
+        training_generator = DataLoader(train, batch_size=self.batch_size, shuffle=True, drop_last=True)
+        # Handle dim issues
         if self.data_processor._last_index is None:
             dim_size = x.shape[1]
         else:
             dim_size = self.data_processor._last_index
-        encoder = Encoder(dim_size, self.hidden_size_layer_list, self.latent_dim).to(self.device)  # type: ignore
-
-        self.decoder_ = Decoder(self.latent_dim, self.reverse_hidden_size_layer_list, dim_size).to(  # type: ignore
-            self.device
-        )
+        # Set up encoder and decoder
+        self.encoder_ = Encoder(
+            dim_size,
+            self.hidden_size_layer_list,
+            self.latent_dim,
+        ).to(self.device)
+        self.decoder_ = Decoder(
+            self.latent_dim,
+            self.reverse_hidden_size_layer_list,
+            dim_size,
+        ).to(self.device)
         optimizer = Adam(
-            list(encoder.parameters()) + list(self.decoder_.parameters()),
+            list(self.encoder_.parameters()) + list(self.decoder_.parameters()),
             lr=self.learning_rate,
             weight_decay=self.l2pen,
         )
@@ -252,7 +259,7 @@ class FlatAutoEncoderSynthesizer(BaseSynthesizer):
                 logger.trace(f"Batch idx: {batch_idx}")
                 optimizer.zero_grad()
                 batch_sample = batch_sample[0].to(self.device)
-                mu, std, logvar = encoder(batch_sample[:, :dim_size])
+                mu, std, logvar = self.encoder_(batch_sample[:, :dim_size])
                 # reparametrize trick
                 eps = torch.randn_like(std)
                 emb = eps * std + mu
@@ -260,7 +267,7 @@ class FlatAutoEncoderSynthesizer(BaseSynthesizer):
                 # reconstruction from model
                 # batch_sample original data
                 # target_mapping needed for loss
-                loss: torch.Tensor = _loss_function(  # type: ignore
+                loss: Tensor = _loss_function(  # type: ignore
                     reconstruction,
                     batch_sample,
                     self.data_processor._category_idx_real_data,
@@ -272,7 +279,6 @@ class FlatAutoEncoderSynthesizer(BaseSynthesizer):
                 loss.backward()  # type: ignore
                 optimizer.step()
             logger.info(f"Epoch: {epoch} // Average Loss: {np.average(loss_collection)}")
-        return x
 
     def generate(self, number_of_subjects: int) -> pd.DataFrame:  # type: ignore
         """Generates a synthetic dataset.
@@ -284,7 +290,7 @@ class FlatAutoEncoderSynthesizer(BaseSynthesizer):
         assert hasattr(self, "decoder_")
         self.decoder_.eval()
         sample_latent = torch.randn(number_of_subjects, self.latent_dim).to(self.device)
-        gd_torch: torch.Tensor = self.decoder_(sample_latent)
+        gd_torch: Tensor = self.decoder_(sample_latent)
         if self.dev == "cuda":
             gd_torch = gd_torch.cpu()
         df_gd = pd.DataFrame(gd_torch.detach().numpy())
@@ -294,9 +300,7 @@ class FlatAutoEncoderSynthesizer(BaseSynthesizer):
         self.raw_generated_data = df_gd
         generated_data = self.data_processor.inverse_transform(df_gd, self.sample_tech).sort_index()
         generated_data = generated_data.rename(columns=self._underscore_column_mapping)
-        categorical_features = [
-            col for col in generated_data.columns if generated_data[col].dtype == "object"
-        ]
-        for c in categorical_features:
+        cat_feat = [col for col in generated_data.columns if generated_data[col].dtype == "object"]
+        for c in cat_feat:
             generated_data[c] = generated_data[c].astype("category")
         return generated_data

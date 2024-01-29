@@ -16,8 +16,7 @@ class BaseSynthesizer(torch.nn.Module):
         super().__init__()
 
     def fit(self, target_data: pd.DataFrame, **kwargs: ty.Any) -> None:
-        """_summary_
-
+        """
         Args:
             target_data (_type_): _description_
         """
@@ -25,14 +24,13 @@ class BaseSynthesizer(torch.nn.Module):
         check_common_data_format(target_data)
 
     def generate(self, number_of_subjects: int, **kwargs: ty.Any) -> None:
-        """_summary_
-
+        """Generate method.
         Args:
-            number_of_subjects (_type_): _description_
+            number_of_subjects (int): _description_
         """
         LOGGER.info(f"Generating {self.__class__.__name__}")
         check_is_fitted(self)
 
-    def forward(self, *args, **kwargs) -> ty.Any:
+    def forward(self, *args: ty.Any, **kwargs: ty.Any) -> ty.Any:
         """forward"""
         return self.generate(*args, **kwargs)

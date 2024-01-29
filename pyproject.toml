@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sai"
+name = "synthetic-ai"
 version = "0.1.0"
 description = "Synthetic A.I."
 authors = ["Gianmarco <janmail1990@gmail.com>"]
@@ -10,9 +10,6 @@ packages = [{ include = "sai", from = "src" }]
 [build-system]
 requires = ["poetry-core>=1.0.0", "cython"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.black]
-line-length = 110
 
 [tool.poetry.dependencies]
 # Python versions
@@ -37,8 +34,13 @@ lightning-bolts = "*"
 lightning-transformers = "^0.2.5"
 torch = [
     { version = "*", source = "pytorch", platform = "linux" },
-    { version = "^2.0.0", platform = "darwin" },
+    { version = "^2.0.0", source = "pypi", platform = "darwin" },
 ]
+torchaudio = [
+    { version = "^2.1.0", source = "pytorch", platform = "linux" },
+    { version = "^2.1.0", source = "pypi", platform = "darwin" },
+]
+lion-pytorch = "^0.1.2"
 torch-geometric = "^2.3.1"
 pytorch-forecasting = { version = "^1.0.0", extras = ["mqf2"] }
 opacus = "^1.4.0"
@@ -54,11 +56,11 @@ rich = "^13.5.2"
 hydra-core = "*"
 # UI
 gradio = "^3.45.2"
-# Music
+# Music/Audio
 datasets = { extras = ["audio"], version = "^2.14.5" }
 yt-dlp = "^2023.9.24"
 sounddevice = "^0.4.6"
-lion-pytorch = "^0.1.2"
+x-clip = "^0.14.1"
 
 [tool.poetry.dev-dependencies]
 cython = "^3.0.2"
@@ -83,3 +85,26 @@ nbmake = "*"
 name = "pytorch"
 url = "https://download.pytorch.org/whl/cpu"
 priority = "explicit"
+
+[tool.black]
+line-length = 110
+
+[tool.mypy]
+exclude = ["tests/conftest.py"]
+warn_return_any = true
+warn_unused_configs = true
+mypy_path = ["src"]
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+ignore_errors = false
+ignore_missing_imports = true
+no_implicit_optional = false
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+norecursedirs = ["tests/res"]
+testpaths = ["tests"]
+log_cli = true
+addopts = "-x --pylint --disable-pytest-warnings --cov=src/ --durations=5"

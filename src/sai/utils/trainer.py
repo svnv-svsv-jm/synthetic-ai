@@ -5,13 +5,15 @@ from loguru import logger
 
 from omegaconf import DictConfig
 import torch
-import pytorch_lightning as pl
+from pytorch_lightning import Trainer
+import lightning.pytorch as pl
 
+_TRAINER_TYPE = ty.Union[pl.Trainer, Trainer]
 _OUT_METRIC = ty.Union[torch.Tensor, ty.Dict[str, torch.Tensor]]
 _OUT_DICT = ty.Dict[str, _OUT_METRIC]
 
 
-def logged_metrics(trainer: pl.Trainer) -> ty.Optional[_OUT_DICT]:
+def logged_metrics(trainer: _TRAINER_TYPE) -> ty.Optional[_OUT_DICT]:
     """Tries to retrieve logged metrics from the trainer. Optionally looks for a MetricTrackerCallback callback and returns its logged metrics."""
     try:
         logged_metrics = trainer.logged_metrics
@@ -20,7 +22,10 @@ def logged_metrics(trainer: pl.Trainer) -> ty.Optional[_OUT_DICT]:
     return logged_metrics  # type: ignore
 
 
-def _get_metric(key: str, logged_metrics: dict) -> float:
+def _get_metric(
+    key: str,
+    logged_metrics: dict,
+) -> float:
     """Get one metric."""
     metric: _OUT_METRIC = logged_metrics[key]
     # Ok if numerical
@@ -34,7 +39,10 @@ def _get_metric(key: str, logged_metrics: dict) -> float:
     return output
 
 
-def get_metric_to_optimize(trainer: pl.Trainer, optimize_metric: str) -> ty.Optional[float]:
+def get_metric_to_optimize(
+    trainer: _TRAINER_TYPE,
+    optimize_metric: str,
+) -> ty.Optional[float]:
     """For Optuna."""
     # Get stuff logged during training / validation / test
     metrics = logged_metrics(trainer)
@@ -54,7 +62,7 @@ def get_metric_to_optimize(trainer: pl.Trainer, optimize_metric: str) -> ty.Opti
 
 
 def get_metric(
-    pl_trainer: pl.Trainer,
+    pl_trainer: _TRAINER_TYPE,
     cfg: DictConfig = None,
     metric: str = None,
 ) -> ty.Optional[float]:

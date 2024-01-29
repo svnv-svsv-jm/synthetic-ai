@@ -28,7 +28,7 @@ ROOT = pyrootutils.setup_root(
 
 @hydra.main(
     config_path=os.path.join(ROOT, "configs"),
-    config_name="main",  # change using the flag `--config-name`
+    config_name="main",
 )
 def main(cfg: DictConfig = None) -> ty.Optional[float]:
     """Train model. You can pass a different configuration from the command line as follows:

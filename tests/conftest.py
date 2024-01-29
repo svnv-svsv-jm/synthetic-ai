@@ -1,6 +1,6 @@
 import pytest
-import pyrootutils, sqlite3, os
-import pandas as pd
+import os
+import pyrootutils
 
 root = pyrootutils.setup_root(
     search_from=".",
@@ -9,6 +9,10 @@ root = pyrootutils.setup_root(
     dotenv=True,
     cwd=True,
 )
+
+import pandas as pd
+
+from sai.datalab.datasets.loader import load_aisle
 
 
 @pytest.fixture(scope="session")
@@ -26,10 +30,5 @@ def merges_file() -> str:
 @pytest.fixture(scope="session")
 def aisle_visits() -> pd.DataFrame:
     """Whether to test on GPU or not."""
-    db_connection = sqlite3.connect("Task2/data/aisle_visits.db")
-    cursor = db_connection.cursor()
-    cursor.execute("SELECT * FROM aisle_visits")
-    df = pd.DataFrame(cursor.fetchall(), columns=[column[0] for column in cursor.description])
-    cursor.close()
-    db_connection.close()
+    df = load_aisle().reset_index()
     return df
