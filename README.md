@@ -1,22 +1,22 @@
 # Synthetic A.I.
 
-This repository offers different synthetic A.I. applications and implementations.
+This repository offers different Synthetic A.I. applications and implementations.
 
-## Installation via virtual environment
+## Pre-requisites
 
-To run the notebooks, you may want to follow these steps.
+The project contains a `Makefile` so that useful but long commands can be run without too much thinking.
 
-### Pre-requisites
+A `.env` file lets you choose the project's name, the Python version and more. If define in the `.env` file, they will be automatically preferred over the default values that are in the `Makefile`.
 
-The project contains a `Makefile` so that useful but long commands can be run without too much thinking. Besides, `mypy`, `pylint` are also configured.
-
-A `.env` file lets you choose the project's name, the Python version and more stuff. Check the file please.
-
-Make sure you have Python `>=3.9` (`3.10.10` recommended).
+Make sure you have Python (`3.10.10` recommended).
 
 Create a virtual environment with any tool you prefer.
 
-#### Create a virtual environment
+## Installation via virtual environment
+
+To run this packge and the notebooks, you may want to follow these steps.
+
+### Create a virtual environment
 
 Use any tool to create a virtual environment with the indicated Python version.
 
@@ -30,7 +30,7 @@ pyenv virtualenv 3.10.10 <project-name>
 pyenv activate <project-name>
 ```
 
-#### Getting Started
+### Getting Started
 
 Once the virtual environment is active, install all dependencies by running:
 
@@ -60,4 +60,4 @@ make pytest
 
 ## Usage
 
-See the [notebooks](./notebooks) folder.
+See the [examples](./examples) folder. You may also want to check the [notebooks](./notebooks) folder.

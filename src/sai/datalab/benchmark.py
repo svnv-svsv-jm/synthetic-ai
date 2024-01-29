@@ -9,13 +9,14 @@ benchmark - compare multiple synthesizers over multiple datasets
 __all__ = ["benchmark"]
 
 from loguru import logger
-from typing import Type, List, Callable, Dict, Union
+from typing import Type, List, Callable, Dict, Union, Sequence
 from pandas import DataFrame
 import numpy as np
 import pandas as pd
 
 import time
 
+from .synthesizers.base import BaseSynthesizer
 from .synthesizers.flatautoencoder import FlatAutoEncoderSynthesizer
 from .synthesizers.identity import IdentitySynthesizer
 from .synthesizers.shuffle import ShuffleSynthesizer
@@ -24,6 +25,7 @@ from .datasets.loader import load_cdnow, load_berka, load_mlb
 
 
 SYN_CLASSES = Union[
+    Type[BaseSynthesizer],
     Type[FlatAutoEncoderSynthesizer],
     Type[IdentitySynthesizer],
     Type[ShuffleSynthesizer],
@@ -31,7 +33,7 @@ SYN_CLASSES = Union[
 
 
 def benchmark(
-    synthetizers_classes: List[SYN_CLASSES],
+    synthetizers_classes: Sequence[SYN_CLASSES],
     datasets: Dict[str, DataFrame] = {},
     verbose: bool = False,
     log: bool = True,

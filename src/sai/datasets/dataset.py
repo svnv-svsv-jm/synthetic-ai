@@ -14,6 +14,7 @@ from torch.utils.data import Dataset, DataLoader, random_split
 from torch.nn.utils.rnn import pad_sequence
 
 from sai.datalab.datasets.loader import load_aisle
+from sai.utils import f_one_hot
 
 DATASET_TYPE = ty.Union[pd.DataFrame, np.ndarray, Dataset]
 
@@ -32,7 +33,7 @@ def to_torch(
         X_cat = torch.tensor(np.asarray(X_cat)).float()
         X_num = torch.tensor(np.asarray(X_num)).float()
         labels = torch.tensor(np.asarray(labels)).float()
-        X_cat = F.one_hot(X_cat)
+        X_cat = f_one_hot(X_cat)
         X = torch.cat((X_cat, X_num, labels), dim=-1)
         assert isinstance(X, Tensor)
         return X
@@ -141,22 +142,32 @@ class AisleDataset(Dataset):
         timeseries_identifier: str = "id",
         one_hot: bool = False,
     ):
-        df = data or load_aisle(pad=False).reset_index()
+        if data is None:
+            df = load_aisle(pad=False).reset_index()
+        else:
+            assert isinstance(data, pd.DataFrame), f"Please provide a {pd.DataFrame}, and not {type(data)}."
+            df = data
         df, categorical_features = df_to_cat(df)
-        self.encoder = OrdinalEncoder(cols=categorical_features, handle_unknown="ignore", return_df=True).fit(
-            df
-        )
+        self.encoder = OrdinalEncoder(
+            cols=categorical_features,
+            handle_unknown="ignore",
+            return_df=True,
+        ).fit(df)
         df = self.encoder.transform(df)
         self.df, _ = df_to_cat(df)
+        assert (
+            timeseries_identifier in self.df.columns
+        ), f"{timeseries_identifier} not found in {self.df.columns}. Check out if it is in the index: {self.df.reset_index().columns}?"
         self.longest_seq = self.df[timeseries_identifier].value_counts().max()
         tensors = []
         for _, group in enumerate(self.df.groupby(timeseries_identifier)):
             df = group[1].drop(timeseries_identifier, axis=1)
-            t = torch.from_numpy(np.array(df))
+            np_df = df.to_numpy()
+            t = torch.from_numpy(np_df)
             tensors.append(t)
         self.data = pad_sequence(tensors, batch_first=True, padding_value=0)
         if one_hot:
-            self.data = torch.nn.functional.one_hot(self.data)
+            self.data = f_one_hot(self.data)
 
     def __len__(self) -> int:
         return int(len(self.data))
@@ -178,12 +189,16 @@ class AisleDataModule(pl.LightningDataModule):
         generator: torch.Generator = None,
         **kwargs: ty.Any,
     ) -> None:
-        """_summary_
+        """
         Args:
-            batch_size (int, optional): _description_. Defaults to 1.
-            lengths (ty.Sequence[ty.Union[int, float]], optional): _description_. Defaults to [0.8, 0.2].
-            num_workers (int, optional): _description_. Defaults to 1.
-            pin_memory (bool, optional): _description_. Defaults to True.
+            batch_size (int, optional):
+                Batch size. Defaults to 1.
+            lengths (ty.Sequence[ty.Union[int, float]], optional):
+                See :func:`torch.utils.data.random_split`. Defaults to [0.8, 0.2].
+            num_workers (int, optional):
+                See :class:`torch.utils.data.DataLoader`. Defaults to 1.
+            pin_memory (bool, optional):
+                See :class:`torch.utils.data.DataLoader`. Defaults to True.
         """
         super().__init__()
         self.batch_size = batch_size
@@ -213,8 +228,20 @@ class AisleDataModule(pl.LightningDataModule):
 
 def df_to_cat(df: pd.DataFrame) -> ty.Tuple[pd.DataFrame, ty.List[str]]:
     """Converts `object` columns to `categorical`."""
-    categorical_features = [col for col in df.columns if df[col].dtype == "object"]
-    logger.trace(f"Converting categorical features {categorical_features}")
-    for c in categorical_features:
+    # Find 'object' columns
+    to_convert = []
+    for col in df.columns:
+        logger.trace(f"Checking out {col}: {df[col].dtype}")
+        if df[col].dtype == "object":
+            to_convert.append(col)
+    # Convert them
+    logger.trace(f"Converting categorical features {to_convert}")
+    for c in to_convert:
         df[c] = df[c].astype("category")
-    return df, categorical_features
+    # Find 'category' columns
+    cat_feat = []
+    for col in df.columns:
+        logger.trace(f"Checking out {col}: {df[col].dtype}")
+        if df[col].dtype == "category":
+            cat_feat.append(col)
+    return df, cat_feat

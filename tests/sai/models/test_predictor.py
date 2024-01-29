@@ -1,4 +1,4 @@
-# pylint: disable=no-member
+# pylint: disable=no-member,undefined-loop-variable
 import pytest
 from loguru import logger
 import sys
@@ -7,8 +7,8 @@ import typing as ty
 import pandas as pd
 from torch import Tensor
 from torch.utils.data import DataLoader
-import pytorch_lightning as pl
-from pytorch_lightning.loggers import TensorBoardLogger, MLFlowLogger
+import lightning.pytorch as pl
+from lightning.pytorch.loggers import TensorBoardLogger, MLFlowLogger
 
 from sai.datasets import AisleDataset
 from sai.models import CategoricalLSTMModel
@@ -21,7 +21,7 @@ def test_lstm(aisle_visits: pd.DataFrame) -> None:
     input_is_one_hot = True
     # Data
     dataset = AisleDataset(aisle_visits, one_hot=input_is_one_hot)
-    logger.info(dataset)
+    logger.info(f"dataset:\n{dataset}")
     # Loader
     loader = DataLoader(dataset, batch_size=32, shuffle=True)
     for batch in loader:
@@ -30,27 +30,31 @@ def test_lstm(aisle_visits: pd.DataFrame) -> None:
         logger.info(f"Values: {batch.min(), batch.max()}")
         break
     # Model
-    vocab_size = len(dataset.df["aisle"].unique())  # Number of unique categories
+    if input_is_one_hot:
+        vocab_size = batch.size(-1)  # Number of unique categories
+    else:
+        vocab_size = len(dataset.df["aisle"].unique())
+    logger.info(f"vocab_size: {vocab_size}")
     model = CategoricalLSTMModel(vocab_size=vocab_size)
-    logger.info(model)
+    logger.info(f"model:\n{model}")
     # Training
     trainer = pl.Trainer(
         accelerator="cpu",
         max_steps=16,
         logger=[
-            MLFlowLogger(
+            MLFlowLogger(  # type: ignore
                 save_dir="pytest_artifacts",
                 run_name="sequential",
                 log_model=True,
             ),
-            TensorBoardLogger(
+            TensorBoardLogger(  # type: ignore
                 save_dir="pytest_artifacts",
                 name="sequential",
             ),
         ],
         enable_checkpointing=False,
-        auto_lr_find=True,
     )
+    # Tuner(trainer).lr_find(model, loader)  # type: ignore
     trainer.fit(model, loader)
     # Generate
     seq = model.generate_sequence(save_dir="pytest_artifacts/gen_seq")
@@ -62,5 +66,5 @@ def test_lstm(aisle_visits: pd.DataFrame) -> None:
 
 if __name__ == "__main__":
     logger.remove()
-    logger.add(sys.stderr, level="DEBUG")
+    logger.add(sys.stderr, level="TRACE")
     pytest.main([__file__, "-x", "-s", "--pylint"])

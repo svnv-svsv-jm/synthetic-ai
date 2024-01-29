@@ -5,7 +5,7 @@ import sys
 import typing as ty
 
 from torch import Tensor
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 
 from sai.datasets import DiscriminatorDataModule
 from sai.models import Classifier
@@ -43,7 +43,6 @@ def test_discriminator() -> None:
         accelerator="cpu",
         max_steps=512,
         logger=False,
-        auto_lr_find=True,
     )
     trainer.fit(model, loader)
 

@@ -5,15 +5,16 @@ import typing as ty
 
 from collections import Counter
 import pandas as pd
-import pytorch_lightning as pl
-from pytorch_lightning.loggers.logger import Logger
+import lightning.pytorch as pl
+from lightning.pytorch.loggers.logger import Logger
+from pytorch_lightning.loggers.logger import Logger as Logger_
 from sklearn.preprocessing import MinMaxScaler
 
 
 def find_logger(
     this: ty.Union[pl.LightningModule, pl.Trainer],
     logger_type: ty.Type,
-) -> ty.Optional[Logger]:
+) -> ty.Optional[ty.Union[Logger, Logger_]]:
     """Checks if there is a logger of the type specified by the argument `logger`. For example:
     >>> isinstance(logger, (TensorBoardLogger, CSVLogger, MLFlowLogger))
     Args:
@@ -28,7 +29,7 @@ def find_logger(
         logger.debug(f"Looking for {logger_type} in {this.loggers}")
         for log in this.loggers:
             if isinstance(log, logger_type):
-                assert isinstance(log, Logger)
+                assert isinstance(log, (Logger, Logger_))
                 logger.debug(f"Returning {log}")
                 return log
     logger.debug(f"No logger at {name}.loggers.")
@@ -36,7 +37,7 @@ def find_logger(
     if hasattr(this, "logger"):
         logger.debug(f"Looking for {logger_type} in {this.logger}")
         if isinstance(this.logger, logger_type):
-            assert isinstance(this.logger, Logger)
+            assert isinstance(this.logger, (Logger, Logger_))
             logger.debug(f"Returning {this.logger}")
             return this.logger
     logger.debug(f"No logger at {name}.logger.")

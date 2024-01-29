@@ -6,37 +6,15 @@ ENV PROJECT_NAME=$project_name
 
 # Create workdir and copy dependency files
 RUN mkdir -p /workdir
-COPY pyproject.toml /workdir/pyproject.toml
-COPY Makefile /workdir/Makefile
-COPY scripts /workdir/scripts
-COPY README.md /workdir/README.md
-COPY LICENSE /workdir/LICENSE
-COPY MANIFEST.in /workdir/MANIFEST.in
-COPY src /workdir/src
-COPY poetry.lock /workdir/
+COPY . /workdir
 
 # Change shell to be able to easily activate virtualenv
 SHELL ["/bin/bash", "-c"]
 WORKDIR /workdir
 
 # Install project
-RUN umask 022 && apt-get update \
-    # Install system packages
-    && apt-get install -y --no-install-recommends apt-utils ca-certificates gosu sudo git rustc curl tree \
-    && curl https://sh.rustup.rs -sSf | sh -s -- -y \
-    && source "$HOME/.cargo/env" \
-    && rm -rf /var/lib/apt/lists/* \
-    # For debugging
-    && tree . \
-    # Install Python dependencies
-    && pip install virtualenv \
-    && virtualenv "/$PROJECT_NAME" \
-    && source "/$PROJECT_NAME/bin/activate" \
-    && make install \
-    && cp poetry.lock /tmp/. \
-    && rm -r /root/.cache \
-    # Avoid permission problems: this is where the virtual env is installed in the image
-    && chmod -R 777 "/$PROJECT_NAME"
+RUN bash scripts/install-system-packages.sh && \
+    bash scripts/setup-virtualenv.sh
 
 # TensorBoard
 EXPOSE 6006

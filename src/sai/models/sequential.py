@@ -1,4 +1,4 @@
-__all__ = ["CategoricalLSTMModel", "GAN"]
+__all__ = ["CategoricalLSTMModel", "TimeGAN"]
 
 from loguru import logger
 import typing as ty, os
@@ -8,15 +8,15 @@ from torch import Tensor
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
-from pytorch_lightning.loggers import TensorBoardLogger
-import pytorch_lightning.callbacks as cb
+from lightning.pytorch.loggers import TensorBoardLogger
+import lightning.pytorch.callbacks as cb
+import lightning.pytorch as pl
 from torchmetrics import Accuracy, Metric, AUROC
-import pytorch_lightning as pl
 from pathlib import Path
 import matplotlib.pyplot as plt
-import numpy as np, pandas as pd
+import pandas as pd
 
-from sai.utils import find_logger
+from sai.utils import find_logger, f_one_hot
 
 
 class TransformerLanguageModel(nn.Module):
@@ -44,12 +44,13 @@ class TransformerLanguageModel(nn.Module):
         """
         super().__init__()
         self.input_is_one_hot = input_is_one_hot
-        self.vocab_size = vocab_size + 1
         self.fc: nn.Module
         embedding_size = int(nhead * 4)
         if not self.input_is_one_hot:
+            self.vocab_size = vocab_size + 1
             self.embedding = nn.Embedding(self.vocab_size, embedding_size, padding_idx=padding_idx)
         else:
+            self.vocab_size = vocab_size
             self.preprocess = nn.Linear(self.vocab_size, embedding_size)
         self.transformer = nn.Transformer(
             d_model=embedding_size,
@@ -74,13 +75,13 @@ class TransformerLanguageModel(nn.Module):
             embedded = embedded.squeeze(2)
         else:
             embedded = self.preprocess(x.float())
-        logger.trace(f"embedded: {embedded.size()}|{embedded.requires_grad}")
+        logger.trace(f"embedded: {embedded.size()} | requires_grad={embedded.requires_grad}")
         output: Tensor = self.transformer(embedded, embedded)
-        logger.trace(f"output: {output.size()}|{output.requires_grad}")
+        logger.trace(f"output: {output.size()} | requires_grad={output.requires_grad}")
         output = output.view(B, L, -1)
-        logger.trace(f"output: {output.size()}|{output.requires_grad}")
+        logger.trace(f"output: {output.size()} | requires_grad={output.requires_grad}")
         output = self.fc(output)
-        logger.trace(f"output: {output.size()}|{output.requires_grad}")
+        logger.trace(f"output: {output.size()} | requires_grad={output.requires_grad}")
         return output
 
 
@@ -135,7 +136,7 @@ class CategoricalLSTMModel(pl.LightningModule):
     def on_test_epoch_start(self) -> None:
         self.log_generated_sequence(tag="test")
 
-    def configure_optimizers(self) -> ty.Dict[str, ty.Any]:
+    def configure_optimizers(self) -> ty.Dict[str, ty.Any]:  # type: ignore
         optimizer = optim.Adam(self.parameters(), lr=self.lr)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer=optimizer,
@@ -245,7 +246,7 @@ class CategoricalLSTMModel(pl.LightningModule):
             for _ in range(length - 1):
                 input_seq = torch.tensor(generated_sequence, dtype=torch.long).unsqueeze(0)
                 if self.model:
-                    input_seq = F.one_hot(input_seq, num_classes=self.model.vocab_size)
+                    input_seq = f_one_hot(input_seq, num_classes=self.model.vocab_size)
                 output = self(input_seq)
                 next_token = output[0, -1, :].argmax().item()
                 generated_sequence.append(next_token)
@@ -295,7 +296,7 @@ class CategoricalLSTMModel(pl.LightningModule):
         )
 
 
-class GAN(pl.LightningModule):
+class TimeGAN(pl.LightningModule):
     """TimeGAN (with transformers)."""
 
     def __init__(
@@ -307,8 +308,10 @@ class GAN(pl.LightningModule):
     ) -> None:
         """
         Args:
-            lr (float, optional): _description_. Defaults to 1e-5.
-            n_critic (int, optional): _description_. Defaults to 5.
+            lr (float, optional):
+                Learning rate. Defaults to 1e-5.
+            n_critic (int, optional):
+                Frequency for the Discriminator training. See :method:`lightning.pytorch.LightningModule.configure_optimizers()` method's documentation. Defaults to 5.
         """
         super().__init__()
         self.save_hyperparameters()
@@ -321,6 +324,8 @@ class GAN(pl.LightningModule):
         self.B: int
         self.L: int
         self.D: int
+        # Important: This property activates manual optimization.
+        self.automatic_optimization = False
 
     def forward(
         self,
@@ -328,11 +333,16 @@ class GAN(pl.LightningModule):
         batch_size: int = 1,
         sequence_length: int = None,
     ) -> Tensor:
-        """_summary_
+        """
         Args:
-            x (Tensor): _description_
+            x (Tensor | Sequence[int] | torch.Size, optional):
+                If `Tensor`, only needed to get its size. Otherwise just input a `Sequence[int] | torch.Size` object.
+            batch_size (int, optional):
+                Batch size. Defaults to 1.
+            sequence_length (int, optional):
+                Sequence length. Defaults to None.
         Returns:
-            Tensor: _description_
+            Tensor: Generated sequence.
         """
         self.D = self.discriminator.vocab_size
         if x is None:
@@ -350,9 +360,13 @@ class GAN(pl.LightningModule):
         self,
         pad_value: int = None,
         to_df: bool = True,
+        columns: ty.Sequence[str] = None,
         **kwargs: ty.Any,
     ) -> ty.Union[Tensor, pd.DataFrame]:
-        """Generate. If a `pad_value` is encountered, all subsequent generated values are also set equal to `pad_value`, as no original sample has ends with anything else than `pad_value`."""
+        """Generate a sequence of tokens.
+
+        If a `pad_value` is encountered, all subsequent generated values are also set equal to `pad_value`, as no original sample ends with anything else than `pad_value`.
+        """
         X: Tensor = self(**kwargs)  # (B, L, D)
         X = X.argmax(dim=-1)  # (B, L)
         if pad_value is not None:
@@ -362,12 +376,15 @@ class GAN(pl.LightningModule):
                     index = idx[0]
                     X[i, index:] = pad_value
         if to_df:
-            df = torch.Tensor([])
+            df_ = torch.Tensor([])
             for i, x in enumerate(X):
                 idx = torch.ones_like(x)
                 g = torch.cat((idx.view(-1, 1), x.view(-1, 1)), dim=-1)
-                df = torch.cat((df, g), dim=0)
-            df = pd.DataFrame(df.detach().cpu().numpy())
+                df_ = torch.cat((df_, g), dim=0)
+            n_cols = df_.size(-1)
+            if columns is None:
+                columns = [f"col_{i}" for i in range(n_cols)]
+            df = pd.DataFrame(df_.detach().cpu().numpy(), columns=columns)
             return df
         return X
 
@@ -417,8 +434,32 @@ class GAN(pl.LightningModule):
             },
         )
 
-    def training_step(self, batch: Tensor, batch_idx: int, optimizer_idx: int) -> Tensor:
-        return self.step(batch, "train", optimizer_idx)
+    def training_step(self, batch: Tensor, batch_idx: int) -> Tensor:
+        """Implementation follows the PyTorch tutorial: https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html"""
+        D_opt, G_opt = self.configure_optimizers()
+        for optimizer_idx, opt in enumerate((D_opt, G_opt)):
+            # Skip to next optimizer if frequency is not right
+            frequency: int = opt["frequency"]
+            if batch_idx % frequency != 0:
+                continue
+            # Run optimization step
+            loss = self.step(batch, "train", optimizer_idx)
+            optimizer: torch.optim.Adam = opt["optimizer"]
+            optimizer.zero_grad()
+            self.manual_backward(loss)
+            optimizer.step()
+        return loss
+
+    def on_train_epoch_end(self) -> None:
+        """Call schedulers."""
+        D_opt, G_opt = self.configure_optimizers()
+        for _, opt in enumerate((D_opt, G_opt)):
+            scheduler: optim.lr_scheduler.ReduceLROnPlateau = opt["lr_scheduler"]["scheduler"]
+            monitor = opt["lr_scheduler"]["monitor"]
+            try:
+                scheduler.step(self.trainer.callback_metrics[monitor])
+            except Exception as ex:
+                logger.warning(ex)
 
     def validation_step(self, batch: Tensor, batch_idx: int) -> Tensor:
         return self.step(batch, "val")

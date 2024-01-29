@@ -53,7 +53,6 @@ def test_llm_on_aisle() -> None:
         devices="auto",
         max_steps=16,
         overfit_batches=2,
-        auto_lr_find=True,
     )
     trainer.fit(model, dm)
     logger.success("")

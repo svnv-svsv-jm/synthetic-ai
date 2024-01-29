@@ -6,7 +6,7 @@ import typing as ty
 import torch
 from torch import Tensor
 import torch.nn.functional as F
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 from torchmetrics import Accuracy, Metric, AUROC
 
 from sai.nn import MLP
@@ -101,7 +101,7 @@ class Classifier(pl.LightningModule):
         logger.trace(f"Output: {output.size()}")
         logger.trace(f"Target: {target.size()}")
         index = target.long().view(-1)
-        onehot: Tensor = F.one_hot(index, num_classes=self.num_classes)
+        onehot: Tensor = F.one_hot(index, num_classes=self.num_classes)  # pylint: disable=not-callable
         logger.trace(f"One-hot: {onehot.size()}")
         loss: Tensor = self.loss(output, onehot.float())
         preds = output.detach().argmax(1).view(-1, 1)
